@@ -87,18 +87,18 @@ const Index = () => {
         </div>
       </nav>
 
-      <div className="relative min-h-[500px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#A8B5A0] to-[#D4B483]">
-        <div className="absolute inset-0 bg-[url('/lovable-uploads/e6014daf-4d70-4b74-9f32-e0c75f724fed.png')] bg-cover bg-center opacity-15 mix-blend-multiply"></div>
+      <div className="relative min-h-[500px] flex items-center justify-center overflow-hidden bg-[#F8FAF4]">
+        <div className="absolute inset-0 bg-[url('/lovable-uploads/e6014daf-4d70-4b74-9f32-e0c75f724fed.png')] bg-cover bg-center opacity-10"></div>
         
         <div className="container px-4 py-12 lg:py-24 relative">
           <div className="text-center mb-8">
-            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 animate-fadeIn drop-shadow-lg tracking-tight">
+            <h1 className="text-4xl lg:text-6xl font-bold text-[#1a2942] mb-6 animate-fadeIn drop-shadow-sm tracking-tight">
               Find the Perfect Dog Park
             </h1>
-            <p className="text-xl text-white mb-4 animate-fadeIn drop-shadow-md font-medium">
+            <p className="text-xl text-[#2C3E50] mb-4 animate-fadeIn font-medium">
               Discover nearby spots for your furry friend to play and socialize
             </p>
-            <p className="text-sm text-white font-medium mb-12 animate-fadeIn drop-shadow-sm">
+            <p className="text-sm text-[#2C3E50] font-medium mb-12 animate-fadeIn">
               Currently available for United States locations only
             </p>
             
