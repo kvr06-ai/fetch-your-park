@@ -1,10 +1,10 @@
-
 import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
 import { Dog, Map, Star, Info } from "lucide-react";
+import { AuthModal } from "@/components/auth/AuthModal";
+import { useAuth } from "@/contexts/AuthContext";
 
-// Temporary mock data
 const mockParks = [
   {
     id: 1,
@@ -41,6 +41,9 @@ const NavigationItem = ({ icon: Icon, text }: { icon: any; text: string }) => (
 
 const Index = () => {
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [authModalTab, setAuthModalTab] = useState<'signin' | 'signup'>('signin');
+  const { user, signOut } = useAuth();
 
   const handleSearch = (location: string) => {
     console.log("Searching for:", location);
@@ -52,22 +55,58 @@ const Index = () => {
     setSearchPerformed(true);
   };
 
+  const handleAuth = (type: 'signin' | 'signup') => {
+    setAuthModalTab(type);
+    setAuthModalOpen(true);
+  };
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success('Signed out successfully');
+    } catch (error) {
+      toast.error('Error signing out');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-white">
-      {/* Navigation Bar */}
       <nav className="border-b border-gray-200 bg-gradient-to-r from-white to-secondary/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-primary">PawSpots</h1>
             <div className="flex items-center gap-4">
-              <button className="text-sm font-medium hover:text-primary/80">Sign in</button>
-              <button className="px-4 py-2 bg-primary text-white rounded-full hover:bg-primary/90">Join</button>
+              {user ? (
+                <div className="flex items-center gap-4">
+                  <span className="text-sm text-gray-600">Hello, {user.email}</span>
+                  <button 
+                    onClick={handleSignOut}
+                    className="text-sm font-medium hover:text-primary/80"
+                  >
+                    Sign out
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => handleAuth('signin')}
+                    className="text-sm font-medium hover:text-primary/80"
+                  >
+                    Sign in
+                  </button>
+                  <button 
+                    onClick={() => handleAuth('signup')}
+                    className="px-4 py-2 bg-primary text-white rounded-full hover:bg-primary/90"
+                  >
+                    Join
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
       <div className="relative min-h-[500px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-secondary/90 to-accent/90">
         <div className="absolute inset-0 bg-[url('/lovable-uploads/e6014daf-4d70-4b74-9f32-e0c75f724fed.png')] bg-cover bg-center opacity-20"></div>
         
@@ -88,7 +127,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Navigation Categories */}
       <div className="border-b border-gray-200 bg-gradient-to-r from-white via-secondary/5 to-white">
         <div className="container mx-auto px-4">
           <div className="flex overflow-x-auto gap-2 py-2 no-scrollbar">
@@ -100,7 +138,6 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Results Section */}
       {searchPerformed && (
         <div className="container mx-auto px-4 py-12 bg-gradient-to-b from-transparent to-secondary/5">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -110,6 +147,12 @@ const Index = () => {
           </div>
         </div>
       )}
+
+      <AuthModal 
+        isOpen={authModalOpen}
+        onClose={() => setAuthModalOpen(false)}
+        defaultTab={authModalTab}
+      />
     </div>
   );
 };
