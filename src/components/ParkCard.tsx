@@ -1,40 +1,57 @@
 
-import { Star, MapPin, Clock } from "lucide-react";
+import { Star, MapPin, Clock, Globe, Phone } from "lucide-react";
+import { DogPark, WorkingHours } from "../types/dogPark";
 
-interface ParkCardProps {
-  name: string;
-  address: string;
-  rating: number;
-  distance: string;
-  hours?: string;
-}
+const formatHours = (hours: WorkingHours | null): string => {
+  if (!hours) return "Hours not available";
+  const today = new Date().toLocaleString('en-us', {weekday: 'long'}) as keyof WorkingHours;
+  return hours[today] || "Hours not available";
+};
 
-const ParkCard = ({ name, address, rating, distance, hours }: ParkCardProps) => {
+const ParkCard = ({ name, full_address, reviews, photo, working_hours, site, phone }: DogPark) => {
   return (
     <div className="group relative bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-300 hover:shadow-md hover:scale-[1.01] animate-slideUp hover:bg-gradient-to-br hover:from-white hover:to-secondary/5">
       <div className="absolute top-4 right-4 text-accent flex items-center gap-1">
         <Star size={16} className="fill-accent stroke-accent" />
-        <span className="text-sm font-medium">{rating}</span>
+        <span className="text-sm font-medium">{reviews}</span>
       </div>
+      
+      {photo && (
+        <div className="w-full h-48 mb-4 rounded-lg overflow-hidden">
+          <img src={photo} alt={name} className="w-full h-full object-cover" />
+        </div>
+      )}
       
       <h3 className="text-lg font-semibold text-primary mb-2 pr-16">{name}</h3>
       
       <div className="space-y-2">
         <div className="flex items-start gap-2 text-muted-foreground">
           <MapPin size={16} className="mt-1 shrink-0" />
-          <p className="text-sm">{address}</p>
+          <p className="text-sm">{full_address}</p>
         </div>
         
-        {hours && (
+        <div className="flex items-start gap-2 text-muted-foreground">
+          <Clock size={16} className="mt-1 shrink-0" />
+          <p className="text-sm">{formatHours(working_hours)}</p>
+        </div>
+
+        {site && (
           <div className="flex items-start gap-2 text-muted-foreground">
-            <Clock size={16} className="mt-1 shrink-0" />
-            <p className="text-sm">{hours}</p>
+            <Globe size={16} className="mt-1 shrink-0" />
+            <a href={site} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-primary">
+              Visit website
+            </a>
           </div>
         )}
-      </div>
-      
-      <div className="mt-4 pt-4 border-t border-gray-100">
-        <p className="text-sm text-muted-foreground">{distance} away</p>
+
+        {phone && (
+          <div className="flex items-start gap-2 text-muted-foreground">
+            <Phone size={16} className="mt-1 shrink-0" />
+            <a href={`tel:${phone}`} className="text-sm hover:text-primary">
+              {phone}
+            </a>
+          </div>
+        )}
       </div>
     </div>
   );
