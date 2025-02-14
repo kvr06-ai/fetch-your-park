@@ -1,62 +1,31 @@
 
 # PawSpots: Dog Park Finder Application
 
-## Overview
+## Technical Architecture Documentation
 
-PawSpots is a modern web application that helps users find dog parks in their vicinity. Built with React, TypeScript, and Supabase, it provides a user-friendly interface for discovering and learning about dog parks across the United States.
+### Overview
+PawSpots is a modern web application designed to help users discover and explore dog parks across the United States. Built with React and TypeScript, it leverages real-time data from Google Maps via Outscraper to provide up-to-date information about dog parks, including reviews, operating hours, and amenities.
 
-## Technical Stack
+### Core Technologies
 
-- **Frontend Framework**: React with TypeScript
+#### Frontend Stack
+- **Framework**: React 18.3.1 with TypeScript
+- **Build Tool**: Vite
 - **Styling**: Tailwind CSS with custom configuration
-- **UI Components**: shadcn/ui component library
-- **Database**: Supabase
-- **State Management**: TanStack Query (React Query)
+- **UI Components**: shadcn/ui library
+- **State Management**: TanStack Query (React Query) v5
+- **Data Fetching**: Supabase Client
 - **Icons**: Lucide React
-- **Routing**: React Router DOM
 
-## Key Features
+#### Backend Infrastructure
+- **Database**: Supabase PostgreSQL
+- **API Layer**: Supabase REST API
+- **Data Updates**: Automated Google Maps data scraping via Outscraper
+- **Authentication**: Supabase Auth (planned)
 
-1. **Location-based Search**
-   - City name search
-   - ZIP code search
-   - Geolocation support (planned)
+### Data Architecture
 
-2. **Dog Park Listings**
-   - Curated list of verified dog parks (10+ reviews)
-   - Pagination support (12 items per page)
-   - Detailed information including:
-     - Park name and address
-     - Operating hours
-     - Website links
-     - Contact information
-
-3. **Responsive Design**
-   - Mobile-first approach
-   - Adaptive layout for all screen sizes
-   - Smooth animations and transitions
-
-## Project Structure
-
-```
-src/
-├── components/
-│   ├── LocationSearch.tsx    # Search input component
-│   ├── ParkCard.tsx         # Dog park card component
-│   └── ui/                  # shadcn/ui components
-├── pages/
-│   ├── Index.tsx            # Main landing page
-│   └── NotFound.tsx         # 404 page
-├── types/
-│   ├── dogPark.ts          # Dog park type definitions
-│   └── user.ts             # User type definitions
-└── lib/
-    └── supabase.ts         # Supabase client configuration
-```
-
-## Data Model
-
-### Dog Park Schema
+#### Dog Park Schema
 ```typescript
 interface DogPark {
   name: string;
@@ -77,34 +46,113 @@ interface DogPark {
 }
 ```
 
-## Quality Assurance
+#### Data Flow
+1. Initial data collection via Outscraper Google Maps scraper
+2. Data cleaning and normalization
+3. Storage in Supabase PostgreSQL database
+4. Real-time querying via Supabase client
+5. Client-side caching with TanStack Query
 
-- **Data Quality**: Only displays dog parks with 10 or more reviews to ensure data reliability
-- **Error Handling**: Comprehensive error states for failed queries
-- **Loading States**: Clear loading indicators during data fetching
-- **Empty States**: User-friendly messages when no results are found
+### Key Features Implementation
 
-## Performance Optimizations
+#### 1. Location-based Search
+- **Implementation**: Custom search component with city and ZIP code support
+- **Validation**: Regex pattern matching for ZIP codes
+- **Query Building**: Dynamic Supabase query construction based on search type
+```typescript
+if (searchLocation?.match(/^\d{5}$/)) {
+  query = query.eq('postal_code', searchLocation);
+} else if (searchLocation) {
+  query = query.ilike('city', `%${searchLocation}%`);
+}
+```
 
-1. **Query Optimization**
-   - Pagination to limit data transfer
-   - Efficient filtering at the database level
+#### 2. Pagination System
+- **Architecture**: Server-side pagination
+- **Page Size**: 12 items per page
+- **Implementation**: Range-based queries with Supabase
+```typescript
+const from = (page - 1) * ITEMS_PER_PAGE;
+const to = from + ITEMS_PER_PAGE - 1;
+```
 
-2. **UI Performance**
-   - Lazy loading of images
-   - Optimized animations using CSS transitions
-   - Debounced search inputs
+#### 3. Data Quality Assurance
+- Minimum review threshold (10+ reviews)
+- Business status validation
+- Working hours parsing and validation
+- Address normalization
 
-## Future Enhancements
+#### 4. UI/UX Implementation
+- **Theme**: Custom dark theme with gradient backgrounds
+- **Color Palette**:
+  - Primary Background: `#1F1D2B` to `#2A2D3E` gradient
+  - Text Colors: 
+    - Headers: `#E5DEFF` (soft purple)
+    - Body: `#D3E4FD` (soft blue)
+    - Accents: `#F2FCE2` (soft green)
+    - Secondary: `#D6BCFA` (light purple)
+- **Responsive Design**: Mobile-first approach with Tailwind breakpoints
+- **Animations**: Custom fade-in and slide-up animations
 
-1. User Authentication
-2. Favorite Parks Feature
-3. User Reviews and Ratings
-4. Advanced Filtering Options
-5. Photo Gallery for Each Park
-6. Directions Integration
+### Performance Optimizations
 
-## Local Development
+#### 1. Query Optimization
+- **Implementation**: Server-side filtering
+- **Caching Strategy**: TanStack Query with custom cache keys
+```typescript
+queryKey: ['dogParks', searchLocation, currentPage]
+```
+
+#### 2. UI Performance
+- Lazy loading of images
+- Debounced search inputs
+- Optimized re-renders with proper React hooks usage
+- Efficient pagination implementation
+
+### Data Collection Process
+
+#### Google Maps Data Scraping
+- **Tool**: Outscraper API
+- **Data Points Collected**:
+  - Business details
+  - Location information
+  - Operating hours
+  - Reviews and ratings
+  - Photos and street view links
+- **Update Frequency**: Weekly data refresh
+- **Validation**: Automated data quality checks
+
+### Security Measures
+
+#### Database Security
+- Row Level Security (RLS) policies
+- Restricted API access
+- Data validation at both client and server levels
+
+#### API Security
+- Rate limiting
+- Request validation
+- Error handling and logging
+
+### Future Enhancements
+
+1. **User Authentication**
+   - Supabase Auth integration
+   - Social login options
+   - User profiles
+
+2. **Advanced Features**
+   - Favorite parks
+   - User reviews
+   - Real-time updates
+   - Directions integration
+
+3. **Performance Improvements**
+   - Image optimization
+   - Progressive Web App (PWA)
+   - Offline support
+
+### Development Setup
 
 1. Clone the repository:
 ```bash
@@ -122,17 +170,14 @@ npm install
 npm run dev
 ```
 
-4. Open http://localhost:8080 in your browser
+### Deployment
 
-## Environment Variables
+The application is configured for deployment on various platforms:
+- Vercel
+- Netlify
+- GitHub Pages
 
-Required environment variables:
-```
-VITE_SUPABASE_URL=your_supabase_url
-VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-## Contributing
+### Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -140,6 +185,6 @@ VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 4. Push to the branch
 5. Create a Pull Request
 
-## License
+### License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
