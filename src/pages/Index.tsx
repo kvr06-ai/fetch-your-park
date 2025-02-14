@@ -1,9 +1,11 @@
+
 import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
 import { Dog, Map, Star, Info } from "lucide-react";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const mockParks = [
   {
