@@ -71,8 +71,8 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F8F9F6] to-[#EFF2EC]">
-      <nav className="bg-gradient-to-r from-white/80 to-secondary/10 backdrop-blur-sm border-b border-secondary/20">
+    <div className="min-h-screen bg-gradient-to-b from-[#F2FCE2] to-[#E2F0D9]">
+      <nav className="bg-[#F8FAF4] shadow-sm border-b border-[#A8B5A0]/20">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -81,24 +81,24 @@ const Index = () => {
                 alt="PawSpots Logo" 
                 className="h-12 w-12 object-contain"
               />
-              <h1 className="text-2xl font-bold text-primary">PawSpots</h1>
+              <h1 className="text-2xl font-bold text-[#2C3E50]">PawSpots</h1>
             </div>
           </div>
         </div>
       </nav>
 
-      <div className="relative min-h-[500px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-secondary/80 to-accent/70">
-        <div className="absolute inset-0 bg-[url('/lovable-uploads/e6014daf-4d70-4b74-9f32-e0c75f724fed.png')] bg-cover bg-center opacity-10"></div>
+      <div className="relative min-h-[500px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-[#A8B5A0] to-[#D4B483]">
+        <div className="absolute inset-0 bg-[url('/lovable-uploads/e6014daf-4d70-4b74-9f32-e0c75f724fed.png')] bg-cover bg-center opacity-15 mix-blend-multiply"></div>
         
         <div className="container px-4 py-12 lg:py-24 relative">
           <div className="text-center mb-8">
             <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 animate-fadeIn drop-shadow-lg">
               Find the Perfect Dog Park
             </h1>
-            <p className="text-xl text-white mb-4 animate-fadeIn drop-shadow">
+            <p className="text-xl text-white mb-4 animate-fadeIn drop-shadow-md">
               Discover nearby spots for your furry friend to play and socialize
             </p>
-            <p className="text-sm text-white/90 mb-12 animate-fadeIn">
+            <p className="text-sm text-white/95 mb-12 animate-fadeIn drop-shadow-sm">
               Currently available for United States locations only
             </p>
             
@@ -113,19 +113,19 @@ const Index = () => {
       {searchPerformed && (
         <div className="container mx-auto px-4 py-12">
           {isLoading ? (
-            <div className="text-center py-12">Loading dog parks...</div>
+            <div className="text-center py-12 text-[#2C3E50]">Loading dog parks...</div>
           ) : error ? (
             <div className="text-center py-12 text-red-500">Error loading dog parks</div>
           ) : (
             <>
               {data?.totalCount === 0 ? (
-                <div className="text-center py-12">
+                <div className="text-center py-12 text-[#2C3E50]">
                   No dog parks found in this location. Try searching for a different area.
                 </div>
               ) : (
                 <>
                   <div className="text-center mb-8">
-                    <p className="text-muted-foreground">
+                    <p className="text-[#2C3E50]/80">
                       Found {data?.totalCount} dog parks
                       {searchLocation && ` near ${searchLocation}`}
                     </p>
