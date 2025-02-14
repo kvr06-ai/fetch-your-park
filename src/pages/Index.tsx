@@ -55,7 +55,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       {/* Navigation Bar */}
-      <nav className="border-b border-gray-200 bg-white">
+      <nav className="border-b border-gray-200 bg-gradient-to-r from-white to-secondary/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-primary">DogParkFinder</h1>
@@ -68,7 +68,7 @@ const Index = () => {
       </nav>
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-br from-primary/90 to-primary min-h-[500px] flex items-center justify-center overflow-hidden">
+      <div className="relative min-h-[500px] flex items-center justify-center overflow-hidden bg-gradient-to-br from-secondary/90 to-accent/90">
         <div className="absolute inset-0 bg-[url('/lovable-uploads/e6014daf-4d70-4b74-9f32-e0c75f724fed.png')] bg-cover bg-center opacity-20"></div>
         
         <div className="container px-4 py-12 lg:py-24 relative">
@@ -89,7 +89,7 @@ const Index = () => {
       </div>
 
       {/* Navigation Categories */}
-      <div className="border-b border-gray-200 bg-white">
+      <div className="border-b border-gray-200 bg-gradient-to-r from-white via-secondary/5 to-white">
         <div className="container mx-auto px-4">
           <div className="flex overflow-x-auto gap-2 py-2 no-scrollbar">
             <NavigationItem icon={Dog} text="Dog Parks" />
@@ -102,7 +102,7 @@ const Index = () => {
 
       {/* Results Section */}
       {searchPerformed && (
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto px-4 py-12 bg-gradient-to-b from-transparent to-secondary/5">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {mockParks.map((park) => (
               <ParkCard key={park.id} {...park} />

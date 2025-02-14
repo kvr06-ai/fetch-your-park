@@ -11,7 +11,7 @@ interface ParkCardProps {
 
 const ParkCard = ({ name, address, rating, distance, hours }: ParkCardProps) => {
   return (
-    <div className="group relative bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-300 hover:shadow-md hover:scale-[1.01] animate-slideUp">
+    <div className="group relative bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-300 hover:shadow-md hover:scale-[1.01] animate-slideUp hover:bg-gradient-to-br hover:from-white hover:to-secondary/5">
       <div className="absolute top-4 right-4 text-accent flex items-center gap-1">
         <Star size={16} className="fill-accent stroke-accent" />
         <span className="text-sm font-medium">{rating}</span>
