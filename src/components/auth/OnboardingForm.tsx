@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -25,7 +26,6 @@ export const OnboardingForm = ({ onClose, unverifiedUser, skipNameCollection = f
     console.log('Form submission started');
     
     try {
-      // Get the current session and verify auth state
       const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
       
       if (sessionError) {
@@ -33,9 +33,6 @@ export const OnboardingForm = ({ onClose, unverifiedUser, skipNameCollection = f
         throw sessionError;
       }
       
-      console.log('Current session data:', sessionData);
-      
-      // Use session user if available, fallback to context user or unverified user
       const effectiveUser = sessionData.session?.user || user || unverifiedUser;
       
       if (!effectiveUser?.id) {
@@ -43,8 +40,6 @@ export const OnboardingForm = ({ onClose, unverifiedUser, skipNameCollection = f
         toast.error('Please sign in to continue');
         return;
       }
-
-      console.log('Effective user:', effectiveUser);
 
       if (!formData.dog_sizes.length) {
         toast.error('Please select at least one dog size');
@@ -58,26 +53,31 @@ export const OnboardingForm = ({ onClose, unverifiedUser, skipNameCollection = f
 
       const profileData = {
         user_id: effectiveUser.id,
+        full_name: effectiveUser.user_metadata?.full_name || null,
         ...formData,
       };
 
       console.log('Submitting profile data:', profileData);
 
-      const { error: insertError } = await supabase
+      // Use upsert instead of insert
+      const { error: upsertError } = await supabase
         .from('user_profiles')
-        .insert([profileData]);
+        .upsert(profileData, {
+          onConflict: 'user_id',
+          merge: true
+        });
 
-      if (insertError) {
-        console.error('Insert error:', insertError);
-        throw insertError;
+      if (upsertError) {
+        console.error('Upsert error:', upsertError);
+        throw upsertError;
       }
 
-      console.log('Profile created successfully');
-      toast.success('Profile created successfully!');
+      console.log('Profile created/updated successfully');
+      toast.success('Profile saved successfully!');
       onClose();
     } catch (error) {
       console.error('Error in form submission:', error);
-      toast.error(error instanceof Error ? error.message : 'Error creating profile');
+      toast.error(error instanceof Error ? error.message : 'Error saving profile');
     }
   };
 

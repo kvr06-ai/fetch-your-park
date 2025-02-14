@@ -24,7 +24,8 @@ export const ProfileEditor = ({ isOpen, onClose, currentProfile, onProfileUpdate
 
     try {
       const updateData = {
-        full_name: currentProfile.full_name, // Preserve the full name
+        user_id: currentProfile.user_id,
+        full_name: currentProfile.full_name,
         zip_code: profile.zip_code || null,
         number_of_dogs: profile.number_of_dogs || null,
         dog_sizes: profile.dog_sizes || [],
@@ -35,13 +36,15 @@ export const ProfileEditor = ({ isOpen, onClose, currentProfile, onProfileUpdate
 
       const { data, error } = await supabase
         .from('user_profiles')
-        .update(updateData)
-        .eq('user_id', currentProfile.user_id)
+        .upsert(updateData, {
+          onConflict: 'user_id',
+          merge: true
+        })
         .select()
         .single();
 
       if (error) {
-        console.error('Supabase update error:', error);
+        console.error('Supabase upsert error:', error);
         throw error;
       }
       
