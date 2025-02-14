@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
+import { OnboardingForm } from './OnboardingForm';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -15,10 +16,15 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const { signIn, signUp } = useAuth();
 
   if (!isOpen) return null;
+  if (showOnboarding) return <OnboardingForm onClose={() => {
+    setShowOnboarding(false);
+    onClose();
+  }} />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,11 +34,12 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
       if (activeTab === 'signin') {
         await signIn(email, password);
         toast.success('Signed in successfully!');
+        onClose();
       } else {
         await signUp(email, password);
         toast.success('Account created! Please check your email to verify your account.');
+        setShowOnboarding(true);
       }
-      onClose();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'An error occurred');
     } finally {
