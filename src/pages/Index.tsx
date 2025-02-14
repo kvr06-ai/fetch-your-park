@@ -37,13 +37,13 @@ const fetchDogParks = async ({ searchLocation, page }: { searchLocation?: string
     query = query.ilike('city', `%${searchLocation}%`);
   }
 
-  // Add pagination
+  // Add pagination and order by reviews in descending order
   const from = (page - 1) * ITEMS_PER_PAGE;
   const to = from + ITEMS_PER_PAGE - 1;
   
   const { data, error, count } = await query
     .range(from, to)
-    .order('name');
+    .order('reviews', { ascending: false });
   
   if (error) {
     throw error;
@@ -98,8 +98,11 @@ const Index = () => {
             <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 animate-fadeIn">
               Find the Perfect Dog Park
             </h1>
-            <p className="text-xl text-white/90 mb-12 animate-fadeIn">
+            <p className="text-xl text-white/90 mb-4 animate-fadeIn">
               Discover nearby spots for your furry friend to play and socialize
+            </p>
+            <p className="text-sm text-white/80 mb-12 animate-fadeIn">
+              Currently available for United States locations only
             </p>
             
             <LocationSearch
