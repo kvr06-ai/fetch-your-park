@@ -81,7 +81,7 @@ const Index = () => {
                 alt="PawSpots Logo" 
                 className="h-12 w-12 object-contain"
               />
-              <h1 className="text-2xl font-bold text-[#2C3E50]">PawSpots</h1>
+              <h1 className="text-2xl font-bold text-[#1a2942] tracking-tight">PawSpots</h1>
             </div>
           </div>
         </div>
@@ -92,13 +92,13 @@ const Index = () => {
         
         <div className="container px-4 py-12 lg:py-24 relative">
           <div className="text-center mb-8">
-            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 animate-fadeIn drop-shadow-lg">
+            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 animate-fadeIn drop-shadow-lg tracking-tight">
               Find the Perfect Dog Park
             </h1>
-            <p className="text-xl text-white mb-4 animate-fadeIn drop-shadow-md">
+            <p className="text-xl text-white mb-4 animate-fadeIn drop-shadow-md font-medium">
               Discover nearby spots for your furry friend to play and socialize
             </p>
-            <p className="text-sm text-white/95 mb-12 animate-fadeIn drop-shadow-sm">
+            <p className="text-sm text-white font-medium mb-12 animate-fadeIn drop-shadow-sm">
               Currently available for United States locations only
             </p>
             
@@ -113,19 +113,19 @@ const Index = () => {
       {searchPerformed && (
         <div className="container mx-auto px-4 py-12">
           {isLoading ? (
-            <div className="text-center py-12 text-[#2C3E50]">Loading dog parks...</div>
+            <div className="text-center py-12 text-[#1a2942] font-medium">Loading dog parks...</div>
           ) : error ? (
-            <div className="text-center py-12 text-red-500">Error loading dog parks</div>
+            <div className="text-center py-12 text-red-600 font-medium">Error loading dog parks</div>
           ) : (
             <>
               {data?.totalCount === 0 ? (
-                <div className="text-center py-12 text-[#2C3E50]">
+                <div className="text-center py-12 text-[#1a2942] font-medium">
                   No dog parks found in this location. Try searching for a different area.
                 </div>
               ) : (
                 <>
                   <div className="text-center mb-8">
-                    <p className="text-[#2C3E50]/80">
+                    <p className="text-[#1a2942] font-medium">
                       Found {data?.totalCount} dog parks
                       {searchLocation && ` near ${searchLocation}`}
                     </p>

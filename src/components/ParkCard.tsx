@@ -17,32 +17,32 @@ const ParkCard = ({ name, full_address, photo, working_hours, site, phone }: Dog
         </div>
       )}
       
-      <h3 className="text-lg font-semibold text-[#2C3E50] mb-2">{name}</h3>
+      <h3 className="text-lg font-semibold text-[#1a2942] mb-2 tracking-tight">{name}</h3>
       
       <div className="space-y-2">
-        <div className="flex items-start gap-2 text-[#2C3E50]/70">
+        <div className="flex items-start gap-2 text-[#2C3E50]">
           <MapPin size={16} className="mt-1 shrink-0" />
-          <p className="text-sm">{full_address}</p>
+          <p className="text-sm font-medium">{full_address}</p>
         </div>
         
-        <div className="flex items-start gap-2 text-[#2C3E50]/70">
+        <div className="flex items-start gap-2 text-[#2C3E50]">
           <Clock size={16} className="mt-1 shrink-0" />
-          <p className="text-sm">{formatHours(working_hours)}</p>
+          <p className="text-sm font-medium">{formatHours(working_hours)}</p>
         </div>
 
         {site && (
-          <div className="flex items-start gap-2 text-[#2C3E50]/70">
+          <div className="flex items-start gap-2 text-[#2C3E50]">
             <Globe size={16} className="mt-1 shrink-0" />
-            <a href={site} target="_blank" rel="noopener noreferrer" className="text-sm hover:text-[#2C3E50]">
+            <a href={site} target="_blank" rel="noopener noreferrer" className="text-sm font-medium hover:text-[#1a2942] transition-colors">
               Visit website
             </a>
           </div>
         )}
 
         {phone && (
-          <div className="flex items-start gap-2 text-[#2C3E50]/70">
+          <div className="flex items-start gap-2 text-[#2C3E50]">
             <Phone size={16} className="mt-1 shrink-0" />
-            <a href={`tel:${phone}`} className="text-sm hover:text-[#2C3E50]">
+            <a href={`tel:${phone}`} className="text-sm font-medium hover:text-[#1a2942] transition-colors">
               {phone}
             </a>
           </div>
