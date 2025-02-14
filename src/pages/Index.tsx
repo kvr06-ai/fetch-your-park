@@ -15,14 +15,15 @@ const NavigationItem = ({ icon: Icon, text }: { icon: any; text: string }) => (
 );
 
 const fetchDogParks = async () => {
-  const { data, error } = await supabase
+  const { data, error, count } = await supabase
     .from('dog_parks')
-    .select('*');
+    .select('*', { count: 'exact' });
   
   if (error) {
     throw error;
   }
   
+  console.log('Total dog parks:', count);
   return data as DogPark[];
 };
 
