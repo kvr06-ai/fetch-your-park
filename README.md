@@ -1,69 +1,145 @@
-# Welcome to your Lovable project
 
-## Project info
+# PawSpots: Dog Park Finder Application
 
-**URL**: https://lovable.dev/projects/0c528025-d246-4012-8ad1-5a02b3762a38
+## Overview
 
-## How can I edit this code?
+PawSpots is a modern web application that helps users find dog parks in their vicinity. Built with React, TypeScript, and Supabase, it provides a user-friendly interface for discovering and learning about dog parks across the United States.
 
-There are several ways of editing your application.
+## Technical Stack
 
-**Use Lovable**
+- **Frontend Framework**: React with TypeScript
+- **Styling**: Tailwind CSS with custom configuration
+- **UI Components**: shadcn/ui component library
+- **Database**: Supabase
+- **State Management**: TanStack Query (React Query)
+- **Icons**: Lucide React
+- **Routing**: React Router DOM
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/0c528025-d246-4012-8ad1-5a02b3762a38) and start prompting.
+## Key Features
 
-Changes made via Lovable will be committed automatically to this repo.
+1. **Location-based Search**
+   - City name search
+   - ZIP code search
+   - Geolocation support (planned)
 
-**Use your preferred IDE**
+2. **Dog Park Listings**
+   - Curated list of verified dog parks (10+ reviews)
+   - Pagination support (12 items per page)
+   - Detailed information including:
+     - Park name and address
+     - Operating hours
+     - Website links
+     - Contact information
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+3. **Responsive Design**
+   - Mobile-first approach
+   - Adaptive layout for all screen sizes
+   - Smooth animations and transitions
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Project Structure
 
-Follow these steps:
+```
+src/
+├── components/
+│   ├── LocationSearch.tsx    # Search input component
+│   ├── ParkCard.tsx         # Dog park card component
+│   └── ui/                  # shadcn/ui components
+├── pages/
+│   ├── Index.tsx            # Main landing page
+│   └── NotFound.tsx         # 404 page
+├── types/
+│   ├── dogPark.ts          # Dog park type definitions
+│   └── user.ts             # User type definitions
+└── lib/
+    └── supabase.ts         # Supabase client configuration
+```
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+## Data Model
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### Dog Park Schema
+```typescript
+interface DogPark {
+  name: string;
+  site: string;
+  phone: string;
+  full_address: string;
+  street: string;
+  city: string;
+  postal_code: string;
+  state: string;
+  country: string;
+  reviews: number;
+  photo: string;
+  street_view: string;
+  working_hours: WorkingHours | null;
+  business_status: 'OPERATIONAL' | 'CLOSED' | string;
+  location_link: string;
+}
+```
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Quality Assurance
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+- **Data Quality**: Only displays dog parks with 10 or more reviews to ensure data reliability
+- **Error Handling**: Comprehensive error states for failed queries
+- **Loading States**: Clear loading indicators during data fetching
+- **Empty States**: User-friendly messages when no results are found
+
+## Performance Optimizations
+
+1. **Query Optimization**
+   - Pagination to limit data transfer
+   - Efficient filtering at the database level
+
+2. **UI Performance**
+   - Lazy loading of images
+   - Optimized animations using CSS transitions
+   - Debounced search inputs
+
+## Future Enhancements
+
+1. User Authentication
+2. Favorite Parks Feature
+3. User Reviews and Ratings
+4. Advanced Filtering Options
+5. Photo Gallery for Each Park
+6. Directions Integration
+
+## Local Development
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd pawspots
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Start the development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+4. Open http://localhost:8080 in your browser
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Environment Variables
 
-**Use GitHub Codespaces**
+Required environment variables:
+```
+VITE_SUPABASE_URL=your_supabase_url
+VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+```
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Contributing
 
-## What technologies are used for this project?
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-This project is built with .
+## License
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/0c528025-d246-4012-8ad1-5a02b3762a38) and click on Share -> Publish.
-
-## I want to use a custom domain - is that possible?
-
-We don't support custom domains (yet). If you want to deploy your project under your own domain then we recommend using Netlify. Visit our docs for more details: [Custom domains](https://docs.lovable.dev/tips-tricks/custom-domain/)
+This project is licensed under the MIT License - see the LICENSE file for details.
