@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
@@ -72,9 +73,16 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#1F1D2B] via-[#2A2D3E] to-[#1F1D2B]">
       <nav className="bg-[#1F1D2B]/50 backdrop-blur-sm border-b border-white/5">
-        <div className="container mx-auto px-4 py-4">
+        <div className="container mx-auto px-4 py-3">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-white/90 tracking-tight">PawSpots</h1>
+            <div className="flex items-center space-x-3">
+              <img 
+                src="/lovable-uploads/066da86d-7a0d-43d1-a82f-b9e366eb79e4.png" 
+                alt="PawSpots Logo" 
+                className="h-10 w-auto"
+              />
+              <h1 className="text-2xl font-bold text-white/90 tracking-tight">PawSpots</h1>
+            </div>
           </div>
         </div>
       </nav>
