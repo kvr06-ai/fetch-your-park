@@ -2,7 +2,6 @@
 import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
-import { Dog, Map, Star, Info } from "lucide-react";
 import { DogPark } from "../types/dogPark";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
@@ -17,28 +16,18 @@ import {
 
 const ITEMS_PER_PAGE = 12;
 
-const NavigationItem = ({ icon: Icon, text }: { icon: any; text: string }) => (
-  <button className="flex items-center gap-2 px-6 py-3 rounded-full hover:bg-black/5 transition-colors duration-200">
-    <Icon size={20} />
-    <span className="font-medium">{text}</span>
-  </button>
-);
-
 const fetchDogParks = async ({ searchLocation, page }: { searchLocation?: string, page: number }) => {
   let query = supabase
     .from('dog_parks')
     .select('*', { count: 'exact' })
-    .gte('reviews', 10); // Only get parks with 10 or more reviews
+    .gte('reviews', 10);
 
-  // If searchLocation is provided and looks like a zip code (5 digits)
   if (searchLocation?.match(/^\d{5}$/)) {
     query = query.eq('postal_code', searchLocation);
   } else if (searchLocation) {
-    // If it's not a zip code, search by city
     query = query.ilike('city', `%${searchLocation}%`);
   }
 
-  // Add pagination and order by reviews in descending order
   const from = (page - 1) * ITEMS_PER_PAGE;
   const to = from + ITEMS_PER_PAGE - 1;
   
@@ -110,17 +99,6 @@ const Index = () => {
               onSearch={handleSearch}
               onUseMyLocation={handleUseMyLocation}
             />
-          </div>
-        </div>
-      </div>
-
-      <div className="border-b border-gray-200 bg-gradient-to-r from-white via-secondary/5 to-white">
-        <div className="container mx-auto px-4">
-          <div className="flex overflow-x-auto gap-2 py-2 no-scrollbar">
-            <NavigationItem icon={Dog} text="Dog Parks" />
-            <NavigationItem icon={Map} text="Dog Beaches" />
-            <NavigationItem icon={Star} text="Top Rated" />
-            <NavigationItem icon={Info} text="Resources" />
           </div>
         </div>
       </div>
