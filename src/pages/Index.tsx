@@ -1,8 +1,10 @@
+
 import { useState, useEffect } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
 import { Dog, Map, Star, Info } from "lucide-react";
 import { AuthModal } from "@/components/auth/AuthModal";
+import { ProfileEditor } from "@/components/profile/ProfileEditor";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
