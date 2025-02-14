@@ -75,11 +75,11 @@ const Index = () => {
       <nav className="border-b border-gray-200 bg-gradient-to-r from-white to-secondary/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               <img 
-                src="/lovable-uploads/ea551656-e3bb-4acc-a312-60df667eb214.png" 
+                src="/lovable-uploads/1cbb2a1c-536e-403a-918b-d4301233217f.png" 
                 alt="PawSpots Logo" 
-                className="h-8 w-8 object-contain mix-blend-multiply"
+                className="h-12 w-12 object-contain"
               />
               <h1 className="text-2xl font-bold text-primary">PawSpots</h1>
             </div>
