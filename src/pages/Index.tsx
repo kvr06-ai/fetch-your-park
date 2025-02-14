@@ -2,6 +2,7 @@
 import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
+import { Dog, Map, Star, Info } from "lucide-react";
 
 // Temporary mock data
 const mockParks = [
@@ -31,6 +32,13 @@ const mockParks = [
   },
 ];
 
+const NavigationItem = ({ icon: Icon, text }: { icon: any; text: string }) => (
+  <button className="flex items-center gap-2 px-6 py-3 rounded-full hover:bg-black/5 transition-colors duration-200">
+    <Icon size={20} />
+    <span className="font-medium">{text}</span>
+  </button>
+);
+
 const Index = () => {
   const [searchPerformed, setSearchPerformed] = useState(false);
 
@@ -45,32 +53,63 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-muted/20">
-      <div className="container px-4 py-12 lg:py-24">
-        <div className={`text-center transition-all duration-500 ${searchPerformed ? 'transform -translate-y-8' : ''}`}>
-          <h1 className="text-4xl lg:text-5xl font-bold text-primary mb-4 animate-fadeIn">
-            Find Dog Parks Near You
-          </h1>
-          <p className="text-lg text-muted-foreground mb-8 animate-fadeIn">
-            Discover the perfect spot for your furry friend to play and socialize
-          </p>
-          
-          <LocationSearch
-            onSearch={handleSearch}
-            onUseMyLocation={handleUseMyLocation}
-          />
-        </div>
-
-        {searchPerformed && (
-          <div className="mt-16">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {mockParks.map((park) => (
-                <ParkCard key={park.id} {...park} />
-              ))}
+    <div className="min-h-screen bg-white">
+      {/* Navigation Bar */}
+      <nav className="border-b border-gray-200 bg-white">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <h1 className="text-2xl font-bold text-primary">DogParkFinder</h1>
+            <div className="flex items-center gap-4">
+              <button className="text-sm font-medium hover:text-primary/80">Sign in</button>
+              <button className="px-4 py-2 bg-primary text-white rounded-full hover:bg-primary/90">Join</button>
             </div>
           </div>
-        )}
+        </div>
+      </nav>
+
+      {/* Hero Section */}
+      <div className="relative bg-gradient-to-br from-primary/90 to-primary min-h-[500px] flex items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 bg-[url('/lovable-uploads/e6014daf-4d70-4b74-9f32-e0c75f724fed.png')] bg-cover bg-center opacity-20"></div>
+        
+        <div className="container px-4 py-12 lg:py-24 relative">
+          <div className="text-center mb-8">
+            <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 animate-fadeIn">
+              Find the Perfect Dog Park
+            </h1>
+            <p className="text-xl text-white/90 mb-12 animate-fadeIn">
+              Discover nearby spots for your furry friend to play and socialize
+            </p>
+            
+            <LocationSearch
+              onSearch={handleSearch}
+              onUseMyLocation={handleUseMyLocation}
+            />
+          </div>
+        </div>
       </div>
+
+      {/* Navigation Categories */}
+      <div className="border-b border-gray-200 bg-white">
+        <div className="container mx-auto px-4">
+          <div className="flex overflow-x-auto gap-2 py-2 no-scrollbar">
+            <NavigationItem icon={Dog} text="Dog Parks" />
+            <NavigationItem icon={Map} text="Dog Beaches" />
+            <NavigationItem icon={Star} text="Top Rated" />
+            <NavigationItem icon={Info} text="Resources" />
+          </div>
+        </div>
+      </div>
+
+      {/* Results Section */}
+      {searchPerformed && (
+        <div className="container mx-auto px-4 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {mockParks.map((park) => (
+              <ParkCard key={park.id} {...park} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
