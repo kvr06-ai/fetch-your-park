@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
@@ -71,34 +70,27 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#F2FCE2] to-[#E2F0D9]">
-      <nav className="bg-[#F8FAF4] shadow-sm border-b border-[#A8B5A0]/20">
+    <div className="min-h-screen bg-gradient-to-br from-[#1F1D2B] via-[#2A2D3E] to-[#1F1D2B]">
+      <nav className="bg-[#1F1D2B]/50 backdrop-blur-sm border-b border-white/5">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-3">
-              <img 
-                src="/lovable-uploads/1cbb2a1c-536e-403a-918b-d4301233217f.png" 
-                alt="PawSpots Logo" 
-                className="h-12 w-12 object-contain"
-              />
-              <h1 className="text-2xl font-bold text-[#1a2942] tracking-tight">PawSpots</h1>
-            </div>
+            <h1 className="text-2xl font-bold text-white/90 tracking-tight">PawSpots</h1>
           </div>
         </div>
       </nav>
 
-      <div className="relative min-h-[500px] flex items-center justify-center overflow-hidden bg-[#F8FAF4]">
-        <div className="absolute inset-0 bg-[url('/lovable-uploads/e6014daf-4d70-4b74-9f32-e0c75f724fed.png')] bg-cover bg-center opacity-10"></div>
+      <div className="relative min-h-[600px] flex items-center justify-center">
+        <div className="absolute inset-0 bg-[url('/lovable-uploads/e6014daf-4d70-4b74-9f32-e0c75f724fed.png')] bg-cover bg-center opacity-5"></div>
         
-        <div className="container px-4 py-12 lg:py-24 relative">
-          <div className="text-center mb-8">
-            <h1 className="text-4xl lg:text-6xl font-bold text-[#1EAEDB] mb-6 animate-fadeIn drop-shadow-sm tracking-tight">
-              Find a Dog Park Near You
+        <div className="container px-4 py-16 lg:py-32 relative">
+          <div className="max-w-4xl mx-auto text-center mb-12">
+            <h1 className="text-5xl lg:text-7xl font-bold text-white mb-6 tracking-tight leading-tight animate-fadeIn">
+              Find a Dog Park <br />Near You
             </h1>
-            <p className="text-xl text-[#2C3E50] mb-4 animate-fadeIn font-medium">
+            <p className="text-xl text-white/80 mb-4 animate-fadeIn font-medium max-w-2xl mx-auto">
               Discover nearby spots for your furry friend to play and socialize
             </p>
-            <p className="text-sm text-[#2C3E50] font-medium mb-12 animate-fadeIn">
+            <p className="text-sm text-white/60 font-medium mb-12 animate-fadeIn">
               Currently available for United States locations only
             </p>
             
@@ -113,19 +105,19 @@ const Index = () => {
       {searchPerformed && (
         <div className="container mx-auto px-4 py-12">
           {isLoading ? (
-            <div className="text-center py-12 text-[#1a2942] font-medium">Loading dog parks...</div>
+            <div className="text-center py-12 text-white/80 font-medium">Loading dog parks...</div>
           ) : error ? (
-            <div className="text-center py-12 text-red-600 font-medium">Error loading dog parks</div>
+            <div className="text-center py-12 text-red-400 font-medium">Error loading dog parks</div>
           ) : (
             <>
               {data?.totalCount === 0 ? (
-                <div className="text-center py-12 text-[#1a2942] font-medium">
+                <div className="text-center py-12 text-white/80 font-medium">
                   No dog parks found in this location. Try searching for a different area.
                 </div>
               ) : (
                 <>
                   <div className="text-center mb-8">
-                    <p className="text-[#1a2942] font-medium">
+                    <p className="text-white/80 font-medium">
                       Found {data?.totalCount} dog parks
                       {searchLocation && ` near ${searchLocation}`}
                     </p>
@@ -142,7 +134,7 @@ const Index = () => {
                           <PaginationItem>
                             <PaginationPrevious 
                               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                              className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : ''} text-white/80`}
                             />
                           </PaginationItem>
                           {[...Array(data.totalPages)].map((_, i) => (
@@ -150,6 +142,7 @@ const Index = () => {
                               <PaginationLink
                                 onClick={() => setCurrentPage(i + 1)}
                                 isActive={currentPage === i + 1}
+                                className="text-white/80"
                               >
                                 {i + 1}
                               </PaginationLink>
@@ -158,7 +151,7 @@ const Index = () => {
                           <PaginationItem>
                             <PaginationNext
                               onClick={() => setCurrentPage(p => Math.min(data.totalPages, p + 1))}
-                              className={currentPage === data.totalPages ? 'pointer-events-none opacity-50' : ''}
+                              className={`${currentPage === data.totalPages ? 'pointer-events-none opacity-50' : ''} text-white/80`}
                             />
                           </PaginationItem>
                         </PaginationContent>
