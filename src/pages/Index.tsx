@@ -6,6 +6,16 @@ import { Dog, Map, Star, Info } from "lucide-react";
 import { DogPark } from "../types/dogPark";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
+import { 
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../components/ui/pagination";
+
+const ITEMS_PER_PAGE = 12;
 
 const NavigationItem = ({ icon: Icon, text }: { icon: any; text: string }) => (
   <button className="flex items-center gap-2 px-6 py-3 rounded-full hover:bg-black/5 transition-colors duration-200">
@@ -14,28 +24,54 @@ const NavigationItem = ({ icon: Icon, text }: { icon: any; text: string }) => (
   </button>
 );
 
-const fetchDogParks = async () => {
-  const { data, error, count } = await supabase
+const fetchDogParks = async ({ searchLocation, page }: { searchLocation?: string, page: number }) => {
+  let query = supabase
     .from('dog_parks')
     .select('*', { count: 'exact' });
+
+  // If searchLocation is provided and looks like a zip code (5 digits)
+  if (searchLocation?.match(/^\d{5}$/)) {
+    query = query.eq('postal_code', searchLocation);
+  } else if (searchLocation) {
+    // If it's not a zip code, search by city
+    query = query.ilike('city', `%${searchLocation}%`);
+  }
+
+  // Add pagination
+  const from = (page - 1) * ITEMS_PER_PAGE;
+  const to = from + ITEMS_PER_PAGE - 1;
+  
+  const { data, error, count } = await query
+    .range(from, to)
+    .order('name');
   
   if (error) {
     throw error;
   }
   
   console.log('Total dog parks:', count);
-  return data as DogPark[];
+  return { 
+    data: data as DogPark[], 
+    totalPages: count ? Math.ceil(count / ITEMS_PER_PAGE) : 0,
+    totalCount: count || 0
+  };
 };
 
 const Index = () => {
   const [searchPerformed, setSearchPerformed] = useState(false);
-  const { data: dogParks, isLoading, error } = useQuery({
-    queryKey: ['dogParks'],
-    queryFn: fetchDogParks
+  const [searchLocation, setSearchLocation] = useState<string>("");
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['dogParks', searchLocation, currentPage],
+    queryFn: () => fetchDogParks({ searchLocation, page: currentPage }),
+    enabled: searchPerformed
   });
 
   const handleSearch = (location: string) => {
     console.log("Searching for:", location);
+    setSearchLocation(location);
+    setCurrentPage(1);
     setSearchPerformed(true);
   };
 
@@ -92,11 +128,57 @@ const Index = () => {
           ) : error ? (
             <div className="text-center py-12 text-red-500">Error loading dog parks</div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {dogParks?.map((park) => (
-                <ParkCard key={park.name} {...park} />
-              ))}
-            </div>
+            <>
+              {data?.totalCount === 0 ? (
+                <div className="text-center py-12">
+                  No dog parks found in this location. Try searching for a different area.
+                </div>
+              ) : (
+                <>
+                  <div className="text-center mb-8">
+                    <p className="text-muted-foreground">
+                      Found {data?.totalCount} dog parks
+                      {searchLocation && ` near ${searchLocation}`}
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {data?.data.map((park) => (
+                      <ParkCard key={`${park.name}-${park.postal_code}`} {...park} />
+                    ))}
+                  </div>
+                  {data && data.totalPages > 1 && (
+                    <div className="mt-8">
+                      <Pagination>
+                        <PaginationContent>
+                          <PaginationItem>
+                            <PaginationPrevious 
+                              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                              className={currentPage === 1 ? 'pointer-events-none opacity-50' : ''}
+                            />
+                          </PaginationItem>
+                          {[...Array(data.totalPages)].map((_, i) => (
+                            <PaginationItem key={i + 1}>
+                              <PaginationLink
+                                onClick={() => setCurrentPage(i + 1)}
+                                isActive={currentPage === i + 1}
+                              >
+                                {i + 1}
+                              </PaginationLink>
+                            </PaginationItem>
+                          ))}
+                          <PaginationItem>
+                            <PaginationNext
+                              onClick={() => setCurrentPage(p => Math.min(data.totalPages, p + 1))}
+                              className={currentPage === data.totalPages ? 'pointer-events-none opacity-50' : ''}
+                            />
+                          </PaginationItem>
+                        </PaginationContent>
+                      </Pagination>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
           )}
         </div>
       )}
