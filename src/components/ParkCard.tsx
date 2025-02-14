@@ -1,5 +1,5 @@
 
-import { Star, MapPin, Clock, Globe, Phone } from "lucide-react";
+import { MapPin, Clock, Globe, Phone } from "lucide-react";
 import { DogPark, WorkingHours } from "../types/dogPark";
 
 const formatHours = (hours: WorkingHours | null): string => {
@@ -8,21 +8,16 @@ const formatHours = (hours: WorkingHours | null): string => {
   return hours[today] || "Hours not available";
 };
 
-const ParkCard = ({ name, full_address, reviews, photo, working_hours, site, phone }: DogPark) => {
+const ParkCard = ({ name, full_address, photo, working_hours, site, phone }: DogPark) => {
   return (
     <div className="group relative bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-300 hover:shadow-md hover:scale-[1.01] animate-slideUp hover:bg-gradient-to-br hover:from-white hover:to-secondary/5">
-      <div className="absolute top-6 right-6 text-[#F97316] flex items-center gap-1 bg-white/90 px-2.5 py-1 rounded-full shadow-sm">
-        <Star size={16} className="fill-[#F97316] stroke-[#F97316]" />
-        <span className="text-sm font-semibold">{reviews || 0}</span>
-      </div>
-      
       {photo && (
         <div className="w-full h-48 mb-4 rounded-lg overflow-hidden">
           <img src={photo} alt={name} className="w-full h-full object-cover" />
         </div>
       )}
       
-      <h3 className="text-lg font-semibold text-primary mb-2 pr-16">{name}</h3>
+      <h3 className="text-lg font-semibold text-primary mb-2">{name}</h3>
       
       <div className="space-y-2">
         <div className="flex items-start gap-2 text-muted-foreground">
