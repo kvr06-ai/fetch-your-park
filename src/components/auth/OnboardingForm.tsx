@@ -60,7 +60,15 @@ export const OnboardingForm = ({ onClose, unverifiedUser, skipNameCollection = f
         return;
       }
 
+      // First, check if a profile already exists
+      const { data: existingProfile } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('user_id', effectiveUser.id)
+        .single();
+
       const profileData = {
+        id: existingProfile?.id, // Include the id if it exists
         user_id: effectiveUser.id,
         full_name: getFullName(effectiveUser),
         ...formData,
@@ -70,9 +78,7 @@ export const OnboardingForm = ({ onClose, unverifiedUser, skipNameCollection = f
 
       const { error: upsertError } = await supabase
         .from('user_profiles')
-        .upsert(profileData, {
-          onConflict: 'user_id'
-        });
+        .upsert(profileData);
 
       if (upsertError) {
         console.error('Upsert error:', upsertError);
