@@ -37,16 +37,30 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
 
     try {
       if (activeTab === 'signin') {
-        await signIn(email, password);
+        const { error: signInError } = await signIn(email, password);
+        if (signInError) throw signInError;
         toast.success('Signed in successfully!');
         onClose();
       } else {
-        const { user } = await signUp(email, password);
+        console.log('Starting signup process...');
+        const { user, error: signUpError } = await signUp(email, password);
+        
+        if (signUpError) {
+          console.error('Signup error details:', signUpError);
+          // Check if it's actually a rate limit error
+          if (signUpError.message.includes('rate limit')) {
+            throw new Error('We are experiencing high traffic. Please try again in a few minutes.');
+          }
+          throw signUpError;
+        }
+        
         setUnverifiedUser(user);
+        console.log('Signup successful:', user);
         toast.success('Account created! Please check your email to verify your account.');
         setShowOnboarding(true);
       }
     } catch (error) {
+      console.error('Auth error:', error);
       toast.error(error instanceof Error ? error.message : 'An error occurred');
     } finally {
       setLoading(false);
