@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -25,7 +26,9 @@ export const OnboardingForm = ({ onClose, unverifiedUser }: OnboardingFormProps)
     e.preventDefault();
     console.log('Form submission started');
     
-    const effectiveUser = user || unverifiedUser;
+    // Get the current session to ensure we have the latest auth state
+    const { data: { session } } = await supabase.auth.getSession();
+    const effectiveUser = session?.user || unverifiedUser;
     
     if (!effectiveUser?.id) {
       console.error('No user found');
@@ -44,6 +47,7 @@ export const OnboardingForm = ({ onClose, unverifiedUser }: OnboardingFormProps)
     }
 
     try {
+      console.log('Current session:', session);
       console.log('Submitting profile data:', {
         user_id: effectiveUser.id,
         ...formData
