@@ -3,7 +3,9 @@ import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
 import { Dog, Map, Star, Info } from "lucide-react";
-import { dogParks } from "../data/dogParks";
+import { DogPark } from "../types/dogPark";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "../lib/supabase";
 
 const NavigationItem = ({ icon: Icon, text }: { icon: any; text: string }) => (
   <button className="flex items-center gap-2 px-6 py-3 rounded-full hover:bg-black/5 transition-colors duration-200">
@@ -12,8 +14,24 @@ const NavigationItem = ({ icon: Icon, text }: { icon: any; text: string }) => (
   </button>
 );
 
+const fetchDogParks = async () => {
+  const { data, error } = await supabase
+    .from('dog_parks')
+    .select('*');
+  
+  if (error) {
+    throw error;
+  }
+  
+  return data as DogPark[];
+};
+
 const Index = () => {
   const [searchPerformed, setSearchPerformed] = useState(false);
+  const { data: dogParks, isLoading, error } = useQuery({
+    queryKey: ['dogParks'],
+    queryFn: fetchDogParks
+  });
 
   const handleSearch = (location: string) => {
     console.log("Searching for:", location);
@@ -68,11 +86,17 @@ const Index = () => {
 
       {searchPerformed && (
         <div className="container mx-auto px-4 py-12 bg-gradient-to-b from-transparent to-secondary/5">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {dogParks.map((park) => (
-              <ParkCard key={park.name} {...park} />
-            ))}
-          </div>
+          {isLoading ? (
+            <div className="text-center py-12">Loading dog parks...</div>
+          ) : error ? (
+            <div className="text-center py-12 text-red-500">Error loading dog parks</div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {dogParks?.map((park) => (
+                <ParkCard key={park.name} {...park} />
+              ))}
+            </div>
+          )}
         </div>
       )}
     </div>
