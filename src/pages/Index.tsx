@@ -1,11 +1,12 @@
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
 import { Dog, Map, Star, Info } from "lucide-react";
 import { AuthModal } from "@/components/auth/AuthModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { toast } from "sonner";
+import { supabase } from "@/lib/supabase";
+import { UserProfile } from "@/types/user";
 
 const mockParks = [
   {
@@ -45,7 +46,31 @@ const Index = () => {
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'signin' | 'signup'>('signin');
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const { user, signOut } = useAuth();
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (user) {
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching user profile:', error);
+          return;
+        }
+
+        if (data) {
+          setUserProfile(data);
+        }
+      }
+    };
+
+    fetchUserProfile();
+  }, [user]);
 
   const handleSearch = (location: string) => {
     console.log("Searching for:", location);
@@ -65,6 +90,7 @@ const Index = () => {
   const handleSignOut = async () => {
     try {
       await signOut();
+      setUserProfile(null);
       toast.success('Signed out successfully');
     } catch (error) {
       toast.error('Error signing out');
@@ -80,7 +106,9 @@ const Index = () => {
             <div className="flex items-center gap-4">
               {user ? (
                 <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-600">Hello, {user.email}</span>
+                  <span className="text-sm text-gray-600">
+                    Hello, {userProfile?.full_name || user.email}
+                  </span>
                   <button 
                     onClick={handleSignOut}
                     className="text-sm font-medium hover:text-primary/80"

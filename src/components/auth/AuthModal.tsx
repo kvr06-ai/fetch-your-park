@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { X } from 'lucide-react';
 import { OnboardingForm } from './OnboardingForm';
 import { User } from '@supabase/supabase-js';
+import { supabase } from '@/lib/supabase';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -16,6 +17,7 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>(defaultTab);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [unverifiedUser, setUnverifiedUser] = useState<User | null>(null);
@@ -47,13 +49,29 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
         
         if (signUpError) {
           console.error('Signup error details:', signUpError);
-          // Check if it's actually a rate limit error
           if (signUpError.message.includes('rate limit')) {
             throw new Error('We are experiencing high traffic. Please try again in a few minutes.');
           }
           throw signUpError;
         }
         
+        if (user) {
+          // Create user profile with the full name
+          const { error: profileError } = await supabase
+            .from('user_profiles')
+            .insert([
+              {
+                user_id: user.id,
+                full_name: fullName,
+              },
+            ]);
+
+          if (profileError) {
+            console.error('Profile creation error:', profileError);
+            throw new Error('Failed to create user profile');
+          }
+        }
+
         setUnverifiedUser(user);
         console.log('Signup successful:', user);
         toast.success('Account created! Please check your email to verify your account.');
@@ -101,6 +119,22 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {activeTab === 'signup' && (
+            <div>
+              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700 mb-1">
+                Full Name
+              </label>
+              <input
+                id="fullName"
+                type="text"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                required
+              />
+            </div>
+          )}
+
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
               Email
