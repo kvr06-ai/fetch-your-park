@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -50,22 +49,21 @@ export const OnboardingForm = ({ onClose, unverifiedUser }: OnboardingFormProps)
         ...formData
       });
 
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('user_profiles')
         .insert([
           {
             user_id: effectiveUser.id,
             ...formData,
           },
-        ])
-        .select();
+        ]);
 
       if (error) {
         console.error('Supabase error:', error);
         throw error;
       }
 
-      console.log('Profile created:', data);
+      console.log('Profile created successfully');
       toast.success('Profile created successfully!');
       onClose();
     } catch (error) {
