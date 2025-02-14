@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import { X } from 'lucide-react';
 import { OnboardingForm } from './OnboardingForm';
+import { User } from '@supabase/supabase-js';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -17,14 +18,18 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [unverifiedUser, setUnverifiedUser] = useState<User | null>(null);
 
   const { signIn, signUp } = useAuth();
 
   if (!isOpen) return null;
-  if (showOnboarding) return <OnboardingForm onClose={() => {
-    setShowOnboarding(false);
-    onClose();
-  }} />;
+  if (showOnboarding) return <OnboardingForm 
+    onClose={() => {
+      setShowOnboarding(false);
+      onClose();
+    }}
+    unverifiedUser={unverifiedUser}
+  />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +41,8 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
         toast.success('Signed in successfully!');
         onClose();
       } else {
-        await signUp(email, password);
+        const { user } = await signUp(email, password);
+        setUnverifiedUser(user);
         toast.success('Account created! Please check your email to verify your account.');
         setShowOnboarding(true);
       }

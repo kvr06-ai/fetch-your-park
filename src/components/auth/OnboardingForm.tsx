@@ -8,9 +8,10 @@ import { X } from 'lucide-react';
 
 interface OnboardingFormProps {
   onClose: () => void;
+  unverifiedUser?: { id: string } | null;
 }
 
-export const OnboardingForm = ({ onClose }: OnboardingFormProps) => {
+export const OnboardingForm = ({ onClose, unverifiedUser }: OnboardingFormProps) => {
   const { user } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
@@ -25,7 +26,9 @@ export const OnboardingForm = ({ onClose }: OnboardingFormProps) => {
     e.preventDefault();
     console.log('Form submission started');
     
-    if (!user) {
+    const effectiveUser = user || unverifiedUser;
+    
+    if (!effectiveUser?.id) {
       console.error('No user found');
       toast.error('Please sign in to continue');
       return;
@@ -43,7 +46,7 @@ export const OnboardingForm = ({ onClose }: OnboardingFormProps) => {
 
     try {
       console.log('Submitting profile data:', {
-        user_id: user.id,
+        user_id: effectiveUser.id,
         ...formData
       });
 
@@ -51,7 +54,7 @@ export const OnboardingForm = ({ onClose }: OnboardingFormProps) => {
         .from('user_profiles')
         .insert([
           {
-            user_id: user.id,
+            user_id: effectiveUser.id,
             ...formData,
           },
         ])
