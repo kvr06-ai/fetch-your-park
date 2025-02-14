@@ -11,9 +11,9 @@ const formatHours = (hours: WorkingHours | null): string => {
 const ParkCard = ({ name, full_address, reviews, photo, working_hours, site, phone }: DogPark) => {
   return (
     <div className="group relative bg-white rounded-lg shadow-sm border border-gray-100 p-6 transition-all duration-300 hover:shadow-md hover:scale-[1.01] animate-slideUp hover:bg-gradient-to-br hover:from-white hover:to-secondary/5">
-      <div className="absolute top-6 right-6 text-accent flex items-center gap-1 bg-white/80 px-2 py-1 rounded-full">
-        <Star size={16} className="fill-accent stroke-accent" />
-        <span className="text-sm font-medium">{reviews}</span>
+      <div className="absolute top-6 right-6 text-[#F97316] flex items-center gap-1 bg-white/90 px-2.5 py-1 rounded-full shadow-sm">
+        <Star size={16} className="fill-[#F97316] stroke-[#F97316]" />
+        <span className="text-sm font-semibold">{reviews || 0}</span>
       </div>
       
       {photo && (
