@@ -58,7 +58,7 @@ const Index = () => {
       <nav className="border-b border-gray-200 bg-gradient-to-r from-white to-secondary/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-primary">DogParkFinder</h1>
+            <h1 className="text-2xl font-bold text-primary">PawSpots</h1>
             <div className="flex items-center gap-4">
               <button className="text-sm font-medium hover:text-primary/80">Sign in</button>
               <button className="px-4 py-2 bg-primary text-white rounded-full hover:bg-primary/90">Join</button>
