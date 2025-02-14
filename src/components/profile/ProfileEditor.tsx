@@ -31,6 +31,8 @@ export const ProfileEditor = ({ isOpen, onClose, currentProfile, onProfileUpdate
         dog_energy_level: profile.dog_energy_level || null,
       };
 
+      console.log('Updating profile with:', updateData);
+
       const { data, error } = await supabase
         .from('user_profiles')
         .update(updateData)
@@ -38,8 +40,12 @@ export const ProfileEditor = ({ isOpen, onClose, currentProfile, onProfileUpdate
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase update error:', error);
+        throw error;
+      }
       
+      console.log('Profile update response:', data);
       toast.success('Profile updated successfully!');
       onProfileUpdate(data as UserProfile);
       onClose();

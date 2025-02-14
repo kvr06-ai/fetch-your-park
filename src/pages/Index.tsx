@@ -54,25 +54,30 @@ const Index = () => {
 
   useEffect(() => {
     const fetchUserProfile = async () => {
-      if (user) {
-        try {
-          const { data, error } = await supabase
-            .from('user_profiles')
-            .select('*')
-            .eq('user_id', user.id)
-            .single();
+      if (!user) {
+        setUserProfile(null);
+        return;
+      }
 
-          if (error) {
-            console.error('Error fetching user profile:', error);
-            return;
-          }
+      try {
+        console.log('Fetching profile for user:', user.id);
+        const { data, error } = await supabase
+          .from('user_profiles')
+          .select('*')
+          .eq('user_id', user.id)
+          .single();
 
-          if (data) {
-            setUserProfile(data);
-          }
-        } catch (error) {
-          console.error('Error in fetchUserProfile:', error);
+        if (error) {
+          console.error('Error fetching user profile:', error);
+          return;
         }
+
+        console.log('Fetched profile:', data);
+        if (data) {
+          setUserProfile(data);
+        }
+      } catch (error) {
+        console.error('Error in fetchUserProfile:', error);
       }
     };
 
@@ -114,7 +119,7 @@ const Index = () => {
               {user ? (
                 <div className="flex items-center gap-4">
                   <span className="text-sm text-gray-600">
-                    Hello, {userProfile?.full_name || 'there'}
+                    Hello, {userProfile?.full_name || (user.user_metadata?.full_name || 'there')}
                   </span>
                   <button 
                     onClick={() => setProfileEditorOpen(true)}
