@@ -1,14 +1,8 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
 import { Dog, Map, Star, Info } from "lucide-react";
-import { AuthModal } from "@/components/auth/AuthModal";
-import { ProfileEditor } from "@/components/profile/ProfileEditor";
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
-import { supabase } from "@/lib/supabase";
-import { UserProfile } from "@/types/user";
 
 const mockParks = [
   {
@@ -46,43 +40,6 @@ const NavigationItem = ({ icon: Icon, text }: { icon: any; text: string }) => (
 
 const Index = () => {
   const [searchPerformed, setSearchPerformed] = useState(false);
-  const [authModalOpen, setAuthModalOpen] = useState(false);
-  const [authModalTab, setAuthModalTab] = useState<'signin' | 'signup'>('signin');
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const [profileEditorOpen, setProfileEditorOpen] = useState(false);
-  const { user, signOut } = useAuth();
-
-  useEffect(() => {
-    const fetchUserProfile = async () => {
-      if (!user) {
-        setUserProfile(null);
-        return;
-      }
-
-      try {
-        console.log('Fetching profile for user:', user.id);
-        const { data, error } = await supabase
-          .from('user_profiles')
-          .select('*')
-          .eq('user_id', user.id)
-          .single();
-
-        if (error) {
-          console.error('Error fetching user profile:', error);
-          return;
-        }
-
-        console.log('Fetched profile:', data);
-        if (data) {
-          setUserProfile(data);
-        }
-      } catch (error) {
-        console.error('Error in fetchUserProfile:', error);
-      }
-    };
-
-    fetchUserProfile();
-  }, [user]);
 
   const handleSearch = (location: string) => {
     console.log("Searching for:", location);
@@ -94,63 +51,12 @@ const Index = () => {
     setSearchPerformed(true);
   };
 
-  const handleAuth = (type: 'signin' | 'signup') => {
-    setAuthModalTab(type);
-    setAuthModalOpen(true);
-  };
-
-  const handleSignOut = async () => {
-    try {
-      await signOut();
-      setUserProfile(null);
-      toast.success('Signed out successfully');
-    } catch (error) {
-      toast.error('Error signing out');
-    }
-  };
-
   return (
     <div className="min-h-screen bg-white">
       <nav className="border-b border-gray-200 bg-gradient-to-r from-white to-secondary/10">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-primary">PawSpots</h1>
-            <div className="flex items-center gap-4">
-              {user ? (
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-600">
-                    Hello, {userProfile?.full_name || (user.user_metadata?.full_name || 'there')}
-                  </span>
-                  <button 
-                    onClick={() => setProfileEditorOpen(true)}
-                    className="text-sm font-medium hover:text-primary/80"
-                  >
-                    Edit Profile
-                  </button>
-                  <button 
-                    onClick={handleSignOut}
-                    className="text-sm font-medium hover:text-primary/80"
-                  >
-                    Sign out
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <button 
-                    onClick={() => handleAuth('signin')}
-                    className="text-sm font-medium hover:text-primary/80"
-                  >
-                    Sign in
-                  </button>
-                  <button 
-                    onClick={() => handleAuth('signup')}
-                    className="px-4 py-2 bg-primary text-white rounded-full hover:bg-primary/90"
-                  >
-                    Join
-                  </button>
-                </>
-              )}
-            </div>
           </div>
         </div>
       </nav>
@@ -194,21 +100,6 @@ const Index = () => {
             ))}
           </div>
         </div>
-      )}
-
-      <AuthModal 
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        defaultTab={authModalTab}
-      />
-
-      {userProfile && (
-        <ProfileEditor
-          isOpen={profileEditorOpen}
-          onClose={() => setProfileEditorOpen(false)}
-          currentProfile={userProfile}
-          onProfileUpdate={setUserProfile}
-        />
       )}
     </div>
   );
