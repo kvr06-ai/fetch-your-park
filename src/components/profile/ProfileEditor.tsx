@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
@@ -37,8 +36,7 @@ export const ProfileEditor = ({ isOpen, onClose, currentProfile, onProfileUpdate
       const { data, error } = await supabase
         .from('user_profiles')
         .upsert(updateData, {
-          onConflict: 'user_id',
-          merge: true
+          onConflict: 'user_id'
         })
         .select()
         .single();

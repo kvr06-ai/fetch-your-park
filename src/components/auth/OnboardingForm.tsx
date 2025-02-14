@@ -5,6 +5,7 @@ import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { DogSize, EnergyLevel } from '@/types/user';
 import { X } from 'lucide-react';
+import { User } from '@supabase/supabase-js';
 
 interface OnboardingFormProps {
   onClose: () => void;
@@ -20,6 +21,14 @@ export const OnboardingForm = ({ onClose, unverifiedUser, skipNameCollection = f
     dog_sizes: [] as DogSize[],
     dog_energy_level: '' as EnergyLevel | '',
   });
+
+  const getFullName = (user: User | { id: string } | null) => {
+    if (!user) return null;
+    if ('user_metadata' in user) {
+      return user.user_metadata?.full_name || null;
+    }
+    return null;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,18 +62,16 @@ export const OnboardingForm = ({ onClose, unverifiedUser, skipNameCollection = f
 
       const profileData = {
         user_id: effectiveUser.id,
-        full_name: effectiveUser.user_metadata?.full_name || null,
+        full_name: getFullName(effectiveUser),
         ...formData,
       };
 
       console.log('Submitting profile data:', profileData);
 
-      // Use upsert instead of insert
       const { error: upsertError } = await supabase
         .from('user_profiles')
         .upsert(profileData, {
-          onConflict: 'user_id',
-          merge: true
+          onConflict: 'user_id'
         });
 
       if (upsertError) {
