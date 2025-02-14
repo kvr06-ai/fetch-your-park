@@ -23,25 +23,51 @@ export const OnboardingForm = ({ onClose }: OnboardingFormProps) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    console.log('Form submission started');
+    
+    if (!user) {
+      console.error('No user found');
+      toast.error('Please sign in to continue');
+      return;
+    }
+
+    if (!formData.dog_sizes.length) {
+      toast.error('Please select at least one dog size');
+      return;
+    }
+
+    if (!formData.dog_energy_level) {
+      toast.error('Please select an energy level');
+      return;
+    }
 
     try {
-      const { error } = await supabase
+      console.log('Submitting profile data:', {
+        user_id: user.id,
+        ...formData
+      });
+
+      const { data, error } = await supabase
         .from('user_profiles')
         .insert([
           {
             user_id: user.id,
             ...formData,
           },
-        ]);
+        ])
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error:', error);
+        throw error;
+      }
 
+      console.log('Profile created:', data);
       toast.success('Profile created successfully!');
       onClose();
     } catch (error) {
-      toast.error('Error creating profile');
-      console.error('Error:', error);
+      console.error('Error creating profile:', error);
+      toast.error(error instanceof Error ? error.message : 'Error creating profile');
     }
   };
 
