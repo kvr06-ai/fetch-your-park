@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/lib/supabase';
@@ -9,13 +8,12 @@ import { X } from 'lucide-react';
 interface OnboardingFormProps {
   onClose: () => void;
   unverifiedUser?: { id: string } | null;
+  skipNameCollection?: boolean;
 }
 
-export const OnboardingForm = ({ onClose, unverifiedUser }: OnboardingFormProps) => {
+export const OnboardingForm = ({ onClose, unverifiedUser, skipNameCollection = false }: OnboardingFormProps) => {
   const { user } = useAuth();
-  const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    full_name: '',
     zip_code: '',
     number_of_dogs: 1,
     dog_sizes: [] as DogSize[],
@@ -108,123 +106,89 @@ export const OnboardingForm = ({ onClose, unverifiedUser }: OnboardingFormProps)
         </button>
 
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-900">Complete Your Profile</h2>
+          <h2 className="text-2xl font-bold text-gray-900">Tell Us About Your Dogs</h2>
           <p className="text-gray-600">Help us personalize your experience</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
-          {step === 1 && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.full_name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, full_name: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Enter your name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ZIP Code
-                </label>
-                <input
-                  type="text"
-                  value={formData.zip_code}
-                  onChange={(e) => setFormData(prev => ({ ...prev, zip_code: e.target.value }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                  placeholder="Enter your ZIP code"
-                />
-              </div>
-              <button
-                type="button"
-                onClick={() => setStep(2)}
-                className="w-full bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90"
-              >
-                Next
-              </button>
-            </>
-          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              ZIP Code
+            </label>
+            <input
+              type="text"
+              value={formData.zip_code}
+              onChange={(e) => setFormData(prev => ({ ...prev, zip_code: e.target.value }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Enter your ZIP code"
+            />
+          </div>
 
-          {step === 2 && (
-            <>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Number of Dogs
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  value={formData.number_of_dogs}
-                  onChange={(e) => setFormData(prev => ({ ...prev, number_of_dogs: parseInt(e.target.value) }))}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-                />
-              </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Number of Dogs
+            </label>
+            <input
+              type="number"
+              min="1"
+              value={formData.number_of_dogs}
+              onChange={(e) => setFormData(prev => ({ ...prev, number_of_dogs: parseInt(e.target.value) }))}
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Dog Size(s)
-                </label>
-                <div className="flex gap-2">
-                  {(['small', 'medium', 'large'] as DogSize[]).map((size) => (
-                    <button
-                      key={size}
-                      type="button"
-                      onClick={() => handleDogSizeToggle(size)}
-                      className={`px-4 py-2 rounded-full border ${
-                        formData.dog_sizes.includes(size)
-                          ? 'bg-primary text-white border-primary'
-                          : 'border-gray-300 hover:border-primary'
-                      }`}
-                    >
-                      {size.charAt(0).toUpperCase() + size.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Energy Level
-                </label>
-                <div className="flex gap-2">
-                  {(['low', 'medium', 'high'] as EnergyLevel[]).map((level) => (
-                    <button
-                      key={level}
-                      type="button"
-                      onClick={() => setFormData(prev => ({ ...prev, dog_energy_level: level }))}
-                      className={`px-4 py-2 rounded-full border ${
-                        formData.dog_energy_level === level
-                          ? 'bg-primary text-white border-primary'
-                          : 'border-gray-300 hover:border-primary'
-                      }`}
-                    >
-                      {level.charAt(0).toUpperCase() + level.slice(1)}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-2">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Dog Size(s)
+            </label>
+            <div className="flex gap-2">
+              {(['small', 'medium', 'large'] as const).map((size) => (
                 <button
+                  key={size}
                   type="button"
-                  onClick={() => setStep(1)}
-                  className="flex-1 py-2 px-4 border border-gray-300 rounded-md hover:bg-gray-50"
+                  onClick={() => handleDogSizeToggle(size)}
+                  className={`px-4 py-2 rounded-full border ${
+                    formData.dog_sizes.includes(size)
+                      ? 'bg-primary text-white border-primary'
+                      : 'border-gray-300 hover:border-primary'
+                  }`}
                 >
-                  Back
+                  {size.charAt(0).toUpperCase() + size.slice(1)}
                 </button>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Energy Level
+            </label>
+            <div className="flex gap-2">
+              {(['low', 'medium', 'high'] as const).map((level) => (
                 <button
-                  type="submit"
-                  className="flex-1 bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90"
+                  key={level}
+                  type="button"
+                  onClick={() => setFormData(prev => ({ ...prev, dog_energy_level: level }))}
+                  className={`px-4 py-2 rounded-full border ${
+                    formData.dog_energy_level === level
+                      ? 'bg-primary text-white border-primary'
+                      : 'border-gray-300 hover:border-primary'
+                  }`}
                 >
-                  Complete
+                  {level.charAt(0).toUpperCase() + level.slice(1)}
                 </button>
-              </div>
-            </>
-          )}
+              ))}
+            </div>
+          </div>
+
+          <div className="flex gap-2">
+            <button
+              type="submit"
+              className="flex-1 bg-primary text-white py-2 px-4 rounded-md hover:bg-primary/90"
+            >
+              Complete
+            </button>
+          </div>
 
           <button
             type="button"

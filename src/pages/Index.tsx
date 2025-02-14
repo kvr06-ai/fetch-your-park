@@ -47,6 +47,7 @@ const Index = () => {
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalTab, setAuthModalTab] = useState<'signin' | 'signup'>('signin');
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [profileEditorOpen, setProfileEditorOpen] = useState(false);
   const { user, signOut } = useAuth();
 
   useEffect(() => {
@@ -109,6 +110,12 @@ const Index = () => {
                   <span className="text-sm text-gray-600">
                     Hello, {userProfile?.full_name || user.email}
                   </span>
+                  <button 
+                    onClick={() => setProfileEditorOpen(true)}
+                    className="text-sm font-medium hover:text-primary/80"
+                  >
+                    Edit Profile
+                  </button>
                   <button 
                     onClick={handleSignOut}
                     className="text-sm font-medium hover:text-primary/80"
@@ -183,6 +190,15 @@ const Index = () => {
         onClose={() => setAuthModalOpen(false)}
         defaultTab={authModalTab}
       />
+
+      {userProfile && (
+        <ProfileEditor
+          isOpen={profileEditorOpen}
+          onClose={() => setProfileEditorOpen(false)}
+          currentProfile={userProfile}
+          onProfileUpdate={setUserProfile}
+        />
+      )}
     </div>
   );
 };

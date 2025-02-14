@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
-import { X } from 'lucide-react';
+import { X, CheckCircle2, XCircle } from 'lucide-react';
 import { OnboardingForm } from './OnboardingForm';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -13,16 +13,32 @@ interface AuthModalProps {
   defaultTab?: 'signin' | 'signup';
 }
 
+const PASSWORD_REQUIREMENTS = [
+  { test: (p: string) => p.length >= 8, message: 'At least 8 characters long' },
+  { test: (p: string) => /[A-Z]/.test(p), message: 'Contains uppercase letter' },
+  { test: (p: string) => /[a-z]/.test(p), message: 'Contains lowercase letter' },
+  { test: (p: string) => /[0-9]/.test(p), message: 'Contains number' },
+  { test: (p: string) => /[^A-Za-z0-9]/.test(p), message: 'Contains special character' },
+];
+
 export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalProps) => {
   const [activeTab, setActiveTab] = useState<'signin' | 'signup'>(defaultTab);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [unverifiedUser, setUnverifiedUser] = useState<User | null>(null);
+  const [showPasswordRequirements, setShowPasswordRequirements] = useState(false);
 
   const { signIn, signUp } = useAuth();
+
+  const validatePassword = () => {
+    return PASSWORD_REQUIREMENTS.every(req => req.test(password));
+  };
+
+  const passwordsMatch = password === confirmPassword;
 
   if (!isOpen) return null;
   if (showOnboarding) return <OnboardingForm 
@@ -31,10 +47,23 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
       onClose();
     }}
     unverifiedUser={unverifiedUser}
+    skipNameCollection={true}
   />;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (activeTab === 'signup') {
+      if (!validatePassword()) {
+        toast.error('Password does not meet all requirements');
+        return;
+      }
+      if (!passwordsMatch) {
+        toast.error('Passwords do not match');
+        return;
+      }
+    }
+
     setLoading(true);
 
     try {
@@ -56,7 +85,6 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
         }
         
         if (user) {
-          // Create user profile with the full name
           const { error: profileError } = await supabase
             .from('user_profiles')
             .insert([
@@ -158,10 +186,46 @@ export const AuthModal = ({ isOpen, onClose, defaultTab = 'signin' }: AuthModalP
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => activeTab === 'signup' && setShowPasswordRequirements(true)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
               required
             />
           </div>
+
+          {activeTab === 'signup' && (
+            <>
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm Password
+                </label>
+                <input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                  required
+                />
+              </div>
+
+              {showPasswordRequirements && (
+                <div className="space-y-2 text-sm">
+                  {PASSWORD_REQUIREMENTS.map((req, index) => (
+                    <div key={index} className="flex items-center gap-2">
+                      {req.test(password) ? (
+                        <CheckCircle2 className="text-green-500" size={16} />
+                      ) : (
+                        <XCircle className="text-red-500" size={16} />
+                      )}
+                      <span className={req.test(password) ? 'text-green-700' : 'text-red-700'}>
+                        {req.message}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
 
           <button
             type="submit"
