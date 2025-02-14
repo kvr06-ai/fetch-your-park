@@ -92,8 +92,8 @@ const Index = () => {
         
         <div className="container px-4 py-12 lg:py-24 relative">
           <div className="text-center mb-8">
-            <h1 className="text-4xl lg:text-6xl font-bold text-[#1a2942] mb-6 animate-fadeIn drop-shadow-sm tracking-tight">
-              Find the Perfect Dog Park
+            <h1 className="text-4xl lg:text-6xl font-bold text-[#1EAEDB] mb-6 animate-fadeIn drop-shadow-sm tracking-tight">
+              Find a Dog Park Near You
             </h1>
             <p className="text-xl text-[#2C3E50] mb-4 animate-fadeIn font-medium">
               Discover nearby spots for your furry friend to play and socialize
