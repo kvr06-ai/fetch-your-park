@@ -27,7 +27,8 @@ const NavigationItem = ({ icon: Icon, text }: { icon: any; text: string }) => (
 const fetchDogParks = async ({ searchLocation, page }: { searchLocation?: string, page: number }) => {
   let query = supabase
     .from('dog_parks')
-    .select('*', { count: 'exact' });
+    .select('*', { count: 'exact' })
+    .gte('reviews', 10); // Only get parks with 10 or more reviews
 
   // If searchLocation is provided and looks like a zip code (5 digits)
   if (searchLocation?.match(/^\d{5}$/)) {
