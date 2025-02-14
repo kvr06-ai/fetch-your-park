@@ -23,14 +23,17 @@ export const ProfileEditor = ({ isOpen, onClose, currentProfile, onProfileUpdate
     setLoading(true);
 
     try {
+      const updateData = {
+        full_name: currentProfile.full_name, // Preserve the full name
+        zip_code: profile.zip_code || null,
+        number_of_dogs: profile.number_of_dogs || null,
+        dog_sizes: profile.dog_sizes || [],
+        dog_energy_level: profile.dog_energy_level || null,
+      };
+
       const { data, error } = await supabase
         .from('user_profiles')
-        .update({
-          zip_code: profile.zip_code,
-          number_of_dogs: profile.number_of_dogs,
-          dog_sizes: profile.dog_sizes,
-          dog_energy_level: profile.dog_energy_level,
-        })
+        .update(updateData)
         .eq('user_id', currentProfile.user_id)
         .select()
         .single();
