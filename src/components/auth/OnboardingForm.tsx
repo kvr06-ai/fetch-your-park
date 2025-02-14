@@ -26,52 +26,59 @@ export const OnboardingForm = ({ onClose, unverifiedUser }: OnboardingFormProps)
     e.preventDefault();
     console.log('Form submission started');
     
-    // Get the current session to ensure we have the latest auth state
-    const { data: { session } } = await supabase.auth.getSession();
-    const effectiveUser = session?.user || unverifiedUser;
-    
-    if (!effectiveUser?.id) {
-      console.error('No user found');
-      toast.error('Please sign in to continue');
-      return;
-    }
-
-    if (!formData.dog_sizes.length) {
-      toast.error('Please select at least one dog size');
-      return;
-    }
-
-    if (!formData.dog_energy_level) {
-      toast.error('Please select an energy level');
-      return;
-    }
-
     try {
-      console.log('Current session:', session);
-      console.log('Submitting profile data:', {
+      // Get the current session and verify auth state
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError) {
+        console.error('Session error:', sessionError);
+        throw sessionError;
+      }
+      
+      console.log('Current session data:', sessionData);
+      
+      // Use session user if available, fallback to context user or unverified user
+      const effectiveUser = sessionData.session?.user || user || unverifiedUser;
+      
+      if (!effectiveUser?.id) {
+        console.error('No user found');
+        toast.error('Please sign in to continue');
+        return;
+      }
+
+      console.log('Effective user:', effectiveUser);
+
+      if (!formData.dog_sizes.length) {
+        toast.error('Please select at least one dog size');
+        return;
+      }
+
+      if (!formData.dog_energy_level) {
+        toast.error('Please select an energy level');
+        return;
+      }
+
+      const profileData = {
         user_id: effectiveUser.id,
-        ...formData
-      });
+        ...formData,
+      };
 
-      const { error } = await supabase
+      console.log('Submitting profile data:', profileData);
+
+      const { error: insertError } = await supabase
         .from('user_profiles')
-        .insert([
-          {
-            user_id: effectiveUser.id,
-            ...formData,
-          },
-        ]);
+        .insert([profileData]);
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
+      if (insertError) {
+        console.error('Insert error:', insertError);
+        throw insertError;
       }
 
       console.log('Profile created successfully');
       toast.success('Profile created successfully!');
       onClose();
     } catch (error) {
-      console.error('Error creating profile:', error);
+      console.error('Error in form submission:', error);
       toast.error(error instanceof Error ? error.message : 'Error creating profile');
     }
   };
