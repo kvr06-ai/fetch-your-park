@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
@@ -15,6 +16,14 @@ import {
 
 const ITEMS_PER_PAGE = 12;
 
+const normalizeSearchTerm = (searchTerm: string): string => {
+  // Remove common suffixes and normalize
+  const term = searchTerm.toLowerCase()
+    .replace(/(city|town|village|heights|township)$/i, '')
+    .trim();
+  return term;
+};
+
 const fetchDogParks = async ({ searchLocation, page }: { searchLocation?: string, page: number }) => {
   let query = supabase
     .from('dog_parks')
@@ -24,8 +33,14 @@ const fetchDogParks = async ({ searchLocation, page }: { searchLocation?: string
   if (searchLocation?.match(/^\d{5}$/)) {
     query = query.eq('postal_code', searchLocation);
   } else if (searchLocation) {
-    const normalizedSearch = searchLocation.toLowerCase().trim();
+    // Normalize the search term
+    const normalizedSearch = normalizeSearchTerm(searchLocation);
+    
+    // For multi-word city names, we want to match the main part
+    // e.g., "New York City" should match "New York"
     query = query.ilike('city', `%${normalizedSearch}%`);
+    
+    console.log('Searching with normalized term:', normalizedSearch);
   }
 
   const from = (page - 1) * ITEMS_PER_PAGE;
