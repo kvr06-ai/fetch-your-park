@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
@@ -25,18 +24,8 @@ const fetchDogParks = async ({ searchLocation, page }: { searchLocation?: string
   if (searchLocation?.match(/^\d{5}$/)) {
     query = query.eq('postal_code', searchLocation);
   } else if (searchLocation) {
-    // Split the search location into words and create a query that matches any of them
-    const searchTerms = searchLocation.toLowerCase().split(/\s+/).filter(Boolean);
-    
-    if (searchTerms.length > 0) {
-      // Create an array of filter conditions
-      const filters = searchTerms.map(term => 
-        `city.ilike.%${term}%`
-      );
-      
-      // Combine the filters with OR logic
-      query = query.or(filters.join(','));
-    }
+    const normalizedSearch = searchLocation.toLowerCase().trim();
+    query = query.ilike('city', `%${normalizedSearch}%`);
   }
 
   const from = (page - 1) * ITEMS_PER_PAGE;
