@@ -66,15 +66,14 @@ export type Database = {
         }
         Relationships: []
       }
-      enriched_dog_parks: {
+      dog_parks_enriched: {
         Row: {
           address: string | null
-          amenities_score: number | null
-          best_time_to_visit: number | null
+          amenities_score: string | null
+          best_time_to_visit: string | null
           busiest_day: string | null
-          busiest_hour: number | null
+          busiest_hour: string | null
           city: string | null
-          created_at: string
           features: string | null
           good_for_kids: boolean | null
           has_benches: boolean | null
@@ -83,35 +82,32 @@ export type Database = {
           has_restroom: boolean | null
           has_shade: boolean | null
           has_water: boolean | null
-          hours_per_week: number | null
-          id: number
+          hours_per_week: string | null
           is_24_hours: boolean | null
           latitude: number | null
           longitude: number | null
           main_photo_url: string | null
-          name: string
+          name: string | null
           off_leash_allowed: boolean | null
-          operating_hours: Json | null
+          operating_hours: string | null
           phone: string | null
-          positive_review_percentage: number | null
-          rating: number | null
-          review_confidence: number | null
-          review_count: number | null
+          positive_review_percentage: string | null
+          rating: string | null
+          review_confidence: string | null
+          review_count: string | null
           state: string | null
           status: string | null
           street_view_url: string | null
-          updated_at: string
           website: string | null
           wheelchair_accessible: boolean | null
         }
         Insert: {
           address?: string | null
-          amenities_score?: number | null
-          best_time_to_visit?: number | null
+          amenities_score?: string | null
+          best_time_to_visit?: string | null
           busiest_day?: string | null
-          busiest_hour?: number | null
+          busiest_hour?: string | null
           city?: string | null
-          created_at?: string
           features?: string | null
           good_for_kids?: boolean | null
           has_benches?: boolean | null
@@ -120,35 +116,32 @@ export type Database = {
           has_restroom?: boolean | null
           has_shade?: boolean | null
           has_water?: boolean | null
-          hours_per_week?: number | null
-          id?: number
+          hours_per_week?: string | null
           is_24_hours?: boolean | null
           latitude?: number | null
           longitude?: number | null
           main_photo_url?: string | null
-          name: string
+          name?: string | null
           off_leash_allowed?: boolean | null
-          operating_hours?: Json | null
+          operating_hours?: string | null
           phone?: string | null
-          positive_review_percentage?: number | null
-          rating?: number | null
-          review_confidence?: number | null
-          review_count?: number | null
+          positive_review_percentage?: string | null
+          rating?: string | null
+          review_confidence?: string | null
+          review_count?: string | null
           state?: string | null
           status?: string | null
           street_view_url?: string | null
-          updated_at?: string
           website?: string | null
           wheelchair_accessible?: boolean | null
         }
         Update: {
           address?: string | null
-          amenities_score?: number | null
-          best_time_to_visit?: number | null
+          amenities_score?: string | null
+          best_time_to_visit?: string | null
           busiest_day?: string | null
-          busiest_hour?: number | null
+          busiest_hour?: string | null
           city?: string | null
-          created_at?: string
           features?: string | null
           good_for_kids?: boolean | null
           has_benches?: boolean | null
@@ -157,24 +150,22 @@ export type Database = {
           has_restroom?: boolean | null
           has_shade?: boolean | null
           has_water?: boolean | null
-          hours_per_week?: number | null
-          id?: number
+          hours_per_week?: string | null
           is_24_hours?: boolean | null
           latitude?: number | null
           longitude?: number | null
           main_photo_url?: string | null
-          name?: string
+          name?: string | null
           off_leash_allowed?: boolean | null
-          operating_hours?: Json | null
+          operating_hours?: string | null
           phone?: string | null
-          positive_review_percentage?: number | null
-          rating?: number | null
-          review_confidence?: number | null
-          review_count?: number | null
+          positive_review_percentage?: string | null
+          rating?: string | null
+          review_confidence?: string | null
+          review_count?: string | null
           state?: string | null
           status?: string | null
           street_view_url?: string | null
-          updated_at?: string
           website?: string | null
           wheelchair_accessible?: boolean | null
         }
