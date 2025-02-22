@@ -72,8 +72,8 @@ const Index = () => {
             .ilike('city', `%${parts[0]}%`)
             .ilike('state', `%${parts[1]}%`);
         } else {
-          // Search in both city and state fields using .or() with filter objects
-          query = query.or('city.ilike.%' + parts[0] + '%,state.ilike.%' + parts[0] + '%');
+          // Search in both city and state fields using proper OR filter syntax
+          query = query.or(`city.ilike.%${parts[0]}%,state.ilike.%${parts[0]}%`.split(','));
         }
       }
     }
