@@ -53,7 +53,7 @@ const Index = () => {
     if (filters.hasWater) query = query.eq('has_water', true);
     if (filters.hasBenches) query = query.eq('has_benches', true);
     if (filters.wheelchairAccessible) query = query.eq('wheelchair_accessible', true);
-    if (filters.offLeash) query = query.eq('off_leash_allowed', true); // Fixed property name
+    if (filters.offLeash) query = query.eq('off_leash_allowed', true);
 
     // Improved search logic
     if (searchLocation) {
@@ -72,8 +72,8 @@ const Index = () => {
             .ilike('city', `%${parts[0]}%`)
             .ilike('state', `%${parts[1]}%`);
         } else {
-          // Search in both city and state fields
-          query = query.or(`city.ilike.%${parts[0]}%,state.ilike.%${parts[0]}%`);
+          // Search in both city and state fields using .or() with filter objects
+          query = query.or('city.ilike.%' + parts[0] + '%,state.ilike.%' + parts[0] + '%');
         }
       }
     }
@@ -81,7 +81,9 @@ const Index = () => {
     const from = (page - 1) * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
     
-    console.log('Executing query:', query); // Add logging for debugging
+    console.log('Search location:', searchLocation);
+    console.log('Page:', page);
+    console.log('Filters:', filters);
     
     const { data, error, count } = await query
       .range(from, to)
@@ -92,7 +94,7 @@ const Index = () => {
       throw error;
     }
 
-    console.log('Query results:', { count, results: data }); // Add logging for debugging
+    console.log('Query results:', { count, results: data });
 
     // Calculate distances if user location is available
     if (userLocation && data) {
