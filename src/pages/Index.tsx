@@ -46,7 +46,7 @@ const Index = () => {
 
   const fetchDogParks = async ({ searchLocation, page }: { searchLocation?: string; page: number }) => {
     let query = supabase
-      .from('dog_parks_enriched')
+      .from('dog_parks')  // Changed to use dog_parks table instead of dog_parks_enriched
       .select('*', { count: 'exact' });
 
     // Apply filters
@@ -72,8 +72,8 @@ const Index = () => {
             .ilike('city', `%${parts[0]}%`)
             .ilike('state', `%${parts[1]}%`);
         } else {
-          // Search in both city and state fields using proper OR filter syntax
-          query = query.or(`city.ilike.%${parts[0]}%,state.ilike.%${parts[0]}%`);
+          // Use filter() for complex OR conditions
+          query = query.filter('city.ilike.%' + parts[0] + '%,state.ilike.%' + parts[0] + '%');
         }
       }
     }
@@ -118,12 +118,6 @@ const Index = () => {
       totalCount: count || 0
     };
   };
-
-  const { data, isLoading, error } = useQuery({
-    queryKey: ['dogParks', searchLocation, currentPage, filters, userLocation],
-    queryFn: () => fetchDogParks({ searchLocation, page: currentPage }),
-    enabled: searchPerformed
-  });
 
   const handleSearch = (location: string) => {
     setSearchLocation(location);
