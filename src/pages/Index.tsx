@@ -53,31 +53,46 @@ const Index = () => {
     if (filters.hasWater) query = query.eq('has_water', true);
     if (filters.hasBenches) query = query.eq('has_benches', true);
     if (filters.wheelchairAccessible) query = query.eq('wheelchair_accessible', true);
-    if (filters.offLeash) query = query.eq('good_for_off_leash', true);
+    if (filters.offLeash) query = query.eq('off_leash_allowed', true); // Fixed property name
 
-    if (searchLocation?.match(/^\d{5}$/)) {
-      query = query.eq('postal_code', searchLocation);
-    } else if (searchLocation) {
-      const [city, state] = searchLocation.split(',').map(s => s.trim());
-      if (state) {
-        query = query
-          .ilike('city', `%${city}%`)
-          .ilike('state', `%${state}%`);
+    // Improved search logic
+    if (searchLocation) {
+      const cleanedSearch = searchLocation.trim().toLowerCase();
+      
+      // Check if it's a ZIP code
+      if (cleanedSearch.match(/^\d{5}$/)) {
+        query = query.eq('postal_code', cleanedSearch);
       } else {
-        query = query.ilike('city', `%${searchLocation}%`);
+        // Split location into city and state
+        const parts = cleanedSearch.split(',').map(part => part.trim());
+        
+        if (parts.length > 1) {
+          // If there's a comma, search for both city and state
+          query = query
+            .ilike('city', `%${parts[0]}%`)
+            .ilike('state', `%${parts[1]}%`);
+        } else {
+          // Search in both city and state fields
+          query = query.or(`city.ilike.%${parts[0]}%,state.ilike.%${parts[0]}%`);
+        }
       }
     }
 
     const from = (page - 1) * ITEMS_PER_PAGE;
     const to = from + ITEMS_PER_PAGE - 1;
     
+    console.log('Executing query:', query); // Add logging for debugging
+    
     const { data, error, count } = await query
       .range(from, to)
       .order('rating', { ascending: false });
     
     if (error) {
+      console.error('Supabase query error:', error);
       throw error;
     }
+
+    console.log('Query results:', { count, results: data }); // Add logging for debugging
 
     // Calculate distances if user location is available
     if (userLocation && data) {
