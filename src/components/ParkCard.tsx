@@ -1,5 +1,5 @@
 
-import { MapPin, Clock, Globe, Phone, Star, Droplet, Wheelchair, Dog, Bench } from "lucide-react";
+import { MapPin, Clock, Globe, Phone, Star, Droplet, Accessibility, Dog, Sofa } from "lucide-react";
 import { DogPark, WorkingHours } from "../types/dogPark";
 
 const formatHours = (hours: WorkingHours | null): string => {
@@ -71,13 +71,13 @@ const ParkCard = ({
           )}
           {has_benches && (
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-50 text-green-700 text-xs">
-              <Bench size={12} />
+              <Sofa size={12} />
               Benches
             </span>
           )}
           {wheelchair_accessible && (
             <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-purple-50 text-purple-700 text-xs">
-              <Wheelchair size={12} />
+              <Accessibility size={12} />
               Accessible
             </span>
           )}
