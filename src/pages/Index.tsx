@@ -2,87 +2,155 @@
 import { useState } from "react";
 import LocationSearch from "../components/LocationSearch";
 import ParkCard from "../components/ParkCard";
-import { DogPark } from "../types/dogPark";
+import { DogPark, calculateDistance } from "../types/dogPark";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "../lib/supabase";
-import { 
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "../components/ui/pagination";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "../components/ui/pagination";
+import { Button } from "../components/ui/button";
+import { Check, Filter } from "lucide-react";
+import { useToast } from "../hooks/use-toast";
 
 const ITEMS_PER_PAGE = 12;
 
-const normalizeSearchTerm = (searchTerm: string): string => {
-  // Remove common suffixes and normalize
-  const term = searchTerm.toLowerCase()
-    .replace(/(city|town|village|heights|township)$/i, '')
-    .trim();
-  return term;
-};
-
-const fetchDogParks = async ({ searchLocation, page }: { searchLocation?: string, page: number }) => {
-  let query = supabase
-    .from('dog_parks')
-    .select('*', { count: 'exact' })
-    .gte('reviews', 10);
-
-  if (searchLocation?.match(/^\d{5}$/)) {
-    query = query.eq('postal_code', searchLocation);
-  } else if (searchLocation) {
-    // Normalize the search term
-    const normalizedSearch = normalizeSearchTerm(searchLocation);
-    
-    // For multi-word city names, we want to match the main part
-    // e.g., "New York City" should match "New York"
-    query = query.ilike('city', `%${normalizedSearch}%`);
-    
-    console.log('Searching with normalized term:', normalizedSearch);
-  }
-
-  const from = (page - 1) * ITEMS_PER_PAGE;
-  const to = from + ITEMS_PER_PAGE - 1;
-  
-  const { data, error, count } = await query
-    .range(from, to)
-    .order('reviews', { ascending: false });
-  
-  if (error) {
-    throw error;
-  }
-  
-  console.log('Total dog parks:', count);
-  return { 
-    data: data as DogPark[], 
-    totalPages: count ? Math.ceil(count / ITEMS_PER_PAGE) : 0,
-    totalCount: count || 0
-  };
-};
+const FilterButton = ({ 
+  label, 
+  isActive, 
+  onClick 
+}: { 
+  label: string; 
+  isActive: boolean; 
+  onClick: () => void;
+}) => (
+  <Button
+    variant={isActive ? "default" : "outline"}
+    className="flex items-center gap-2"
+    onClick={onClick}
+  >
+    {isActive && <Check size={16} />}
+    {label}
+  </Button>
+);
 
 const Index = () => {
+  const { toast } = useToast();
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [searchLocation, setSearchLocation] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+  const [filters, setFilters] = useState({
+    hasWater: false,
+    hasBenches: false,
+    wheelchairAccessible: false,
+    offLeash: false,
+  });
+
+  const fetchDogParks = async ({ searchLocation, page }: { searchLocation?: string; page: number }) => {
+    let query = supabase
+      .from('dog_parks_enriched')
+      .select('*', { count: 'exact' });
+
+    // Apply filters
+    if (filters.hasWater) query = query.eq('has_water', true);
+    if (filters.hasBenches) query = query.eq('has_benches', true);
+    if (filters.wheelchairAccessible) query = query.eq('wheelchair_accessible', true);
+    if (filters.offLeash) query = query.eq('good_for_off_leash', true);
+
+    if (searchLocation?.match(/^\d{5}$/)) {
+      query = query.eq('postal_code', searchLocation);
+    } else if (searchLocation) {
+      const [city, state] = searchLocation.split(',').map(s => s.trim());
+      if (state) {
+        query = query
+          .ilike('city', `%${city}%`)
+          .ilike('state', `%${state}%`);
+      } else {
+        query = query.ilike('city', `%${searchLocation}%`);
+      }
+    }
+
+    const from = (page - 1) * ITEMS_PER_PAGE;
+    const to = from + ITEMS_PER_PAGE - 1;
+    
+    const { data, error, count } = await query
+      .range(from, to)
+      .order('rating', { ascending: false });
+    
+    if (error) {
+      throw error;
+    }
+
+    // Calculate distances if user location is available
+    if (userLocation && data) {
+      data.forEach((park: DogPark) => {
+        const distance = calculateDistance(
+          userLocation.lat,
+          userLocation.lng,
+          park.latitude,
+          park.longitude
+        );
+        (park as any).distance = distance;
+      });
+      
+      // Sort by distance
+      data.sort((a: any, b: any) => a.distance - b.distance);
+    }
+    
+    return { 
+      data: data as DogPark[], 
+      totalPages: count ? Math.ceil(count / ITEMS_PER_PAGE) : 0,
+      totalCount: count || 0
+    };
+  };
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['dogParks', searchLocation, currentPage],
+    queryKey: ['dogParks', searchLocation, currentPage, filters, userLocation],
     queryFn: () => fetchDogParks({ searchLocation, page: currentPage }),
     enabled: searchPerformed
   });
 
   const handleSearch = (location: string) => {
-    console.log("Searching for:", location);
     setSearchLocation(location);
     setCurrentPage(1);
     setSearchPerformed(true);
   };
 
   const handleUseMyLocation = () => {
-    console.log("Using user's location");
-    setSearchPerformed(true);
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+          setSearchPerformed(true);
+          toast({
+            title: "Location detected",
+            description: "Showing dog parks near you",
+          });
+        },
+        () => {
+          toast({
+            title: "Location access denied",
+            description: "Please enable location access or search by city/zip code",
+            variant: "destructive",
+          });
+        }
+      );
+    } else {
+      toast({
+        title: "Geolocation not supported",
+        description: "Please search by city or zip code instead",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleFilter = (filter: keyof typeof filters) => {
+    setFilters(prev => ({
+      ...prev,
+      [filter]: !prev[filter]
+    }));
+    setCurrentPage(1);
   };
 
   return (
@@ -107,12 +175,13 @@ const Index = () => {
               Discover nearby spots for your furry friend to play and socialize
             </p>
             <p className="text-sm text-[#D6BCFA] font-medium mb-12 animate-fadeIn">
-              Currently available for United States locations only
+              Search by city, state or zip code
             </p>
             
             <LocationSearch
               onSearch={handleSearch}
               onUseMyLocation={handleUseMyLocation}
+              isLoading={isLoading}
             />
           </div>
         </div>
@@ -126,56 +195,87 @@ const Index = () => {
             <div className="text-center py-12 text-red-400 font-medium">Error loading dog parks</div>
           ) : (
             <>
-              {data?.totalCount === 0 ? (
-                <div className="text-center py-12 text-[#D3E4FD] font-medium">
-                  No dog parks found in this location. Try searching for a different area.
-                </div>
-              ) : (
-                <>
-                  <div className="text-center mb-8">
-                    <p className="text-[#F2FCE2] font-medium">
-                      Found {data?.totalCount} dog parks
-                      {searchLocation && ` near ${searchLocation}`}
-                    </p>
+              <div className="mb-8">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-[#F2FCE2] font-medium text-xl">
+                    {data?.totalCount} dog parks found
+                    {searchLocation && ` near ${searchLocation}`}
+                  </h2>
+                  <div className="flex items-center gap-4">
+                    <Filter className="text-[#F2FCE2]" size={20} />
+                    <div className="flex gap-2 overflow-x-auto pb-2">
+                      <FilterButton
+                        label="Has Water"
+                        isActive={filters.hasWater}
+                        onClick={() => toggleFilter('hasWater')}
+                      />
+                      <FilterButton
+                        label="Has Benches"
+                        isActive={filters.hasBenches}
+                        onClick={() => toggleFilter('hasBenches')}
+                      />
+                      <FilterButton
+                        label="Wheelchair Accessible"
+                        isActive={filters.wheelchairAccessible}
+                        onClick={() => toggleFilter('wheelchairAccessible')}
+                      />
+                      <FilterButton
+                        label="Off-leash Allowed"
+                        isActive={filters.offLeash}
+                        onClick={() => toggleFilter('offLeash')}
+                      />
+                    </div>
                   </div>
+                </div>
+
+                {data?.totalCount === 0 ? (
+                  <div className="text-center py-12 text-[#D3E4FD] font-medium">
+                    No dog parks found matching your criteria. Try adjusting your filters or search for a different location.
+                  </div>
+                ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {data?.data.map((park) => (
-                      <ParkCard key={`${park.name}-${park.postal_code}`} {...park} />
+                      <ParkCard 
+                        key={`${park.name}-${park.postal_code}`} 
+                        {...park} 
+                        distance={(park as any).distance}
+                      />
                     ))}
                   </div>
-                  {data && data.totalPages > 1 && (
-                    <div className="mt-8">
-                      <Pagination>
-                        <PaginationContent>
-                          <PaginationItem>
-                            <PaginationPrevious 
-                              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                              className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : ''} text-[#D3E4FD]`}
-                            />
+                )}
+
+                {data && data.totalPages > 1 && (
+                  <div className="mt-8">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious 
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            className={`${currentPage === 1 ? 'pointer-events-none opacity-50' : ''} text-[#D3E4FD]`}
+                          />
+                        </PaginationItem>
+                        {[...Array(data.totalPages)].map((_, i) => (
+                          <PaginationItem key={i + 1}>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(i + 1)}
+                              isActive={currentPage === i + 1}
+                              className="text-[#D3E4FD]"
+                            >
+                              {i + 1}
+                            </PaginationLink>
                           </PaginationItem>
-                          {[...Array(data.totalPages)].map((_, i) => (
-                            <PaginationItem key={i + 1}>
-                              <PaginationLink
-                                onClick={() => setCurrentPage(i + 1)}
-                                isActive={currentPage === i + 1}
-                                className="text-[#D3E4FD]"
-                              >
-                                {i + 1}
-                              </PaginationLink>
-                            </PaginationItem>
-                          ))}
-                          <PaginationItem>
-                            <PaginationNext
-                              onClick={() => setCurrentPage(p => Math.min(data.totalPages, p + 1))}
-                              className={`${currentPage === data.totalPages ? 'pointer-events-none opacity-50' : ''} text-[#D3E4FD]`}
-                            />
-                          </PaginationItem>
-                        </PaginationContent>
-                      </Pagination>
-                    </div>
-                  )}
-                </>
-              )}
+                        ))}
+                        <PaginationItem>
+                          <PaginationNext
+                            onClick={() => setCurrentPage(p => Math.min(data.totalPages, p + 1))}
+                            className={`${currentPage === data.totalPages ? 'pointer-events-none opacity-50' : ''} text-[#D3E4FD]`}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
+                  </div>
+                )}
+              </div>
             </>
           )}
         </div>
